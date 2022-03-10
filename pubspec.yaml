@@ -1,0 +1,53 @@
+name: employeeapp
+description: A new Flutter project.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  modal_progress_hud_nsn: ^0.1.0-nullsafety-1
+  http: ^0.13.4
+  path: ^1.8.0
+  form_field_validator: ^1.1.0
+  intl: ^0.17.0
+  image_picker: ^0.8.4+4
+  get:
+  dio: ^4.0.4
+  eosdart_ecc: ^0.4.4
+  shared_preferences: ^2.0.12
+  connectivity: ^3.0.6
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.0
+
+
+flutter:
+
+  uses-material-design: true
+  assets:
+    -  assets/images/
+
+  fonts:
+    - family: Sf Pro Display
+      fonts:
+        - asset: assets/fonts/SFPRODISPLAYREGULAR.OTF
+        - asset: assets/fonts/SFPRODISPLAYMEDIUM.OTF
+          weight: 500
+        - asset: assets/fonts/SFPRODISPLAYBOLD.OTF
+          weight: 700
+
+
+
+
