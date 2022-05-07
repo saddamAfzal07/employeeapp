@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'dart:ui';
-import 'dart:ffi';
-
 import 'dart:io';
 
 import 'package:employeeapp/controller/login/logincontrolller.dart';
@@ -18,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:get/get.dart';
+
 import 'package:image_picker/image_picker.dart';
 
 class Tasks extends StatefulWidget {
@@ -51,6 +48,7 @@ class _TasksState extends State<Tasks> {
 
       uncompleteapi();
       complete = [];
+
       completeapi();
       pending = [];
       pendingapi();
@@ -69,56 +67,54 @@ class _TasksState extends State<Tasks> {
   var id = Usererdatalist.userid;
   var token = Usererdatalist.usertoken;
 
-  var url =
-      "https://thepointsystemapp.com/employee/public/api/employee/dailyTask";
-
-  List<Tasksss> category = [];
+  List<DailyTasks> category = [];
+  bool notext = false;
   fetchapi() async {
-    var response = await http.post(Uri.parse(url), headers: {
-      'Authorization': 'Bearer $token',
-    }, body: {
-      'date': selecteddate.toString(),
-      'employee_id': id,
-    });
+    category = [];
+    print(selecteddate);
+    // setState(() {
+    //   var date = selecteddate.toString().substring(
+    //                               0, selecteddate.length, 10)),
+
+    // });
+    var response = await http.get(
+      Uri.parse(
+          "https://thepointsystemapp.com/employee/public/api/task/assigned?date=$selecteddate"),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
     Map data = jsonDecode(response.body);
     print(response.body);
-    // setState(() {
-    //   taskcount = data["count"];
-    //   completedcount = data["completedCount"];
-    //   uncompletedcount = data["unCompletedCount"];
-    //   pendingcount = data["pedningApprovalCount"];
-    // });
-    // print(response.body);
-    // print(completedcount);
-    // print(uncompletedcount);
-    // print(pendingcount);
 
     if (response.statusCode == 200) {
-      if (data["count"] == 0) {
+      if (data["daily_tasks"].isEmpty) {
         setState(() {
-          isloadingwaiting = false;
+          notext = true;
         });
+      } else {
+        for (int i = 0; i < data["daily_tasks"].length; i++) {
+          Map obj = data["daily_tasks"][i];
+          DailyTasks pos = DailyTasks();
+          pos = DailyTasks.fromJson(obj);
+          category.add(pos);
+        }
       }
-      setState(() {
-        taskcount = data["count"];
-        completedcount = data["completedCount"];
-        uncompletedcount = data["unCompletedCount"];
-        pendingcount = data["pedningApprovalCount"];
-        isloadingwaiting = false;
-      });
-      // print(response.body);
-      // print(completedcount);
-      // print(uncompletedcount);
-      // print(pendingcount);
+      // if (data["count"] == 0) {
+      //   setState(() {
+      //     isloadingwaiting = false;
+      //   });
+      // }
+      // setState(() {
+      //   taskcount = data["count"];
+      //   completedcount = data["completedCount"];
+      //   uncompletedcount = data["unCompletedCount"];
+      //   pendingcount = data["pedningApprovalCount"];
+      //   isloadingwaiting = false;
+      // });
 
-      for (int i = 0; i < data["tasks"].length; i++) {
-        Map obj = data["tasks"][i];
-        Tasksss pos = Tasksss();
-        pos = Tasksss.fromJson(obj);
-        category.add(pos);
-        // print(category);
-
-      }
       setState(() {
         isloadingwaiting = false;
       });
@@ -192,8 +188,6 @@ class _TasksState extends State<Tasks> {
     Future.delayed(Duration(milliseconds: 100), () {
       category = [];
       fetchapi();
-
-      // Do something
     });
   }
 
@@ -212,16 +206,16 @@ class _TasksState extends State<Tasks> {
     final multipartRequest = new http.MultipartRequest(
         "POST",
         Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/send-task"));
+            "https://thepointsystemapp.com/employee/public/api/task/assigned-submit"));
     multipartRequest.headers.addAll(headers);
 
     multipartRequest.fields.addAll({
-      "employee_id": Usererdatalist.userid,
-      'task_id': category[index].id.toString()
+      "assigned_task_specific_id":
+          category[index].assignedTaskSpecificId.toString(),
     });
 
     multipartRequest.files.add(await http.MultipartFile.fromPath(
-        'task_image', category[index].image!.path));
+        'image', category[index].image!.path));
     http.StreamedResponse response = await multipartRequest.send();
 
     var responseString = await response.stream.bytesToString();
@@ -234,17 +228,20 @@ class _TasksState extends State<Tasks> {
         imagesubmit = true;
       });
       print("Done");
+      // Scaffold.of(context)
+      //     .showSnackBar(SnackBar(content: Text("Task upload Successfully")));
       Get.snackbar(
-        "Image upload Successfully",
+        "Task submit Successfully",
         "",
         colorText: Colors.white,
-        backgroundColor: Colors.greenAccent,
+        backgroundColor: Colors.blue,
         snackPosition: SnackPosition.BOTTOM,
         borderRadius: 10,
         borderWidth: 2,
       );
 
       apirecall();
+      // fetchapi();
 
       print(responseString);
     } else {}
@@ -262,7 +259,7 @@ class _TasksState extends State<Tasks> {
   uncompleteapi() async {
     var response = await http.get(
         Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/un-approved/tasks?date=$selecteddate&&employee_id=$id"),
+            "https://thepointsystemapp.com/employee/public/api/employee/un-approved/tasks"),
         headers: {
           'Authorization': 'Bearer $token',
         });
@@ -272,7 +269,7 @@ class _TasksState extends State<Tasks> {
       setState(() {});
       for (int i = 0; i < data["rejectedTasks"].length; i++) {
         Map obj = data["rejectedTasks"][i];
-        RejectedTasks pos = new RejectedTasks();
+        RejectedTasks pos = RejectedTasks();
         pos = RejectedTasks.fromJson(obj);
         uncmplete.add(pos);
         print("uncomplete");
@@ -292,7 +289,7 @@ class _TasksState extends State<Tasks> {
   completeapi() async {
     var response = await http.get(
         Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/completed/tasks?date=$selecteddate&employee_id=$id"),
+            "https://thepointsystemapp.com/employee/public/api/employee/completed/tasks"),
         headers: {
           'Authorization': 'Bearer $token',
         });
@@ -304,7 +301,7 @@ class _TasksState extends State<Tasks> {
       });
       for (int i = 0; i < data["completedTask"].length; i++) {
         Map obj = data["completedTask"][i];
-        CompletedTask pos = new CompletedTask();
+        CompletedTask pos = CompletedTask();
         pos = CompletedTask.fromJson(obj);
         complete.add(pos);
         print("uncomplete");
@@ -317,28 +314,25 @@ class _TasksState extends State<Tasks> {
     }
   }
 
-  List<PedningApprovalTasks> pending = [];
+  List<Pending> pending = [];
   pendingapi() async {
-    var response = await http.post(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/pending-for-approval/tasks"),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-        body: {
-          'date': selecteddate.toString(),
-          'employee_id': id,
-        });
+    var response = await http.get(
+      Uri.parse(
+          "https://thepointsystemapp.com/employee/public/api/employee/pending-for-approval/tasks"),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
       setState(() {
         isloadingcomplete = false;
       });
-      for (int i = 0; i < data["pedningApprovalTasks"].length; i++) {
-        Map obj = data["pedningApprovalTasks"][i];
-        PedningApprovalTasks pos = new PedningApprovalTasks();
-        pos = PedningApprovalTasks.fromJson(obj);
+      for (int i = 0; i < data["completedTask"].length; i++) {
+        Map obj = data["completedTask"][i];
+        Pending pos = Pending();
+        pos = Pending.fromJson(obj);
         pending.add(pos);
         print("uncomplete");
         print(complete);
@@ -451,7 +445,7 @@ class _TasksState extends State<Tasks> {
                               onTap: () {
                                 isloadingcomplete = true;
                                 complete = [];
-
+                                completeapi();
                                 setState(() {
                                   visibleuncompleted = false;
                                   visiblecompleted = true;
@@ -649,65 +643,77 @@ class _TasksState extends State<Tasks> {
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : Expanded(
-                    flex: 5,
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: category.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(
-                                left: 20, right: 20, bottom: 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(9),
-                              border: Border.all(color: kGreenColor),
-                            ),
-                            child: ListTile(
-                              leading: Container(
-                                alignment: Alignment.centerLeft,
-                                margin: EdgeInsets.only(bottom: 10),
-                                height: 60,
-                                width: 60,
-                                // color: Colors.green,
-                                child: category[index].image == null
-                                    ? Image.network(
-                                        'https://static.thenounproject.com/png/2413564-200.png',
-                                        // fit: BoxFit.cover,
-                                        height: 30,
-                                        width: 30,
-                                      )
-                                    : Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 4),
-                                        child: Image.file(
-                                          File(category[index].image!.path)
-                                              .absolute,
-                                          fit: BoxFit.cover,
+                : notext
+                    ? Center(
+                        child: Padding(
+                        padding: const EdgeInsets.only(top: 170),
+                        child: Text("There is not any Task"),
+                      ))
+                    : Expanded(
+                        flex: 5,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: category.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: const EdgeInsets.only(
+                                    left: 20, right: 20, bottom: 15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(9),
+                                  border: Border.all(color: kGreenColor),
+                                ),
+                                child: ListTile(
+                                  leading: Container(
+                                    alignment: Alignment.centerLeft,
+                                    margin: EdgeInsets.only(bottom: 10),
+                                    height: 60,
+                                    width: 60,
+                                    // color: Colors.green,
+                                    child: category[index].image == null
+                                        ? Image.network(
+                                            'https://static.thenounproject.com/png/2413564-200.png',
+                                            // fit: BoxFit.cover,
+                                            height: 30,
+                                            width: 30,
+                                          )
+                                        : Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 4),
+                                            child: Image.file(
+                                              File(category[index].image!.path)
+                                                  .absolute,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                  ),
+                                  title: Text(category[index]
+                                      .task![0]
+                                      .taskTitle
+                                      .toString()),
+                                  subtitle: Text(category[index]
+                                      .task![0]
+                                      .taskDescription
+                                      .toString()),
+                                  trailing: category[index].image == null
+                                      ? GestureDetector(
+                                          onTap: () {
+                                            getimage(index);
+                                          },
+                                          child: Image.asset(
+                                            'assets/images/Vector (7).png',
+                                            height: 24,
+                                            width: 24,
+                                          ),
+                                        )
+                                      : TextButton(
+                                          onPressed: () {
+                                            uploadImage(index);
+                                          },
+                                          child: Text("Submit"),
                                         ),
-                                      ),
-                              ),
-                              title: Text(category[index].taskTitle!),
-                              subtitle: Text(category[index].taskDate!),
-                              trailing: category[index].image == null
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        getimage(index);
-                                      },
-                                      child: Image.asset(
-                                        'assets/images/Vector (7).png',
-                                        height: 24,
-                                        width: 24,
-                                      ),
-                                    )
-                                  : TextButton(
-                                      onPressed: () {
-                                        uploadImage(index);
-                                      },
-                                      child: Text("Submit"),
-                                    ),
-                            ),
-                          );
-                        })),
+                                ),
+                              );
+                            })),
           ),
 
           /////uncompleted
@@ -740,7 +746,10 @@ class _TasksState extends State<Tasks> {
                                     ),
                                   ],
                                 ),
-                                title: Text(uncmplete[index].taskTitle!),
+                                title: Text(uncmplete[index]
+                                    .task![0]
+                                    .taskTitle
+                                    .toString()),
                                 subtitle: Text(
                                   "Not verified +1 points",
                                   style: TextStyle(color: Colors.red),
@@ -752,19 +761,15 @@ class _TasksState extends State<Tasks> {
           ////complete
           Visibility(
             visible: visiblecompleted,
-            child:
-
-                // isloadingcomplete
-                //     ? Center(
-                //         child: CircularProgressIndicator(),
-                //       )
-                //     :
-
-                Expanded(
+            child: isloadingcomplete
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Expanded(
                     flex: 5,
                     child: ListView.builder(
                         shrinkWrap: true,
-                        itemCount: uncmplete.length,
+                        itemCount: complete.length,
                         itemBuilder: (context, index) {
                           return Container(
                             margin: const EdgeInsets.only(
@@ -783,7 +788,10 @@ class _TasksState extends State<Tasks> {
                                     ),
                                   ],
                                 ),
-                                title: Text(uncmplete[index].taskTitle!),
+                                title: Text(complete[index]
+                                    .task![0]
+                                    .taskTitle
+                                    .toString()),
                                 subtitle: Text(
                                   "Verified",
                                   style: TextStyle(color: kGreenColor),
@@ -795,15 +803,11 @@ class _TasksState extends State<Tasks> {
           ////pending
           Visibility(
             visible: visiblepending,
-            child:
-
-                // isloadingcomplete
-                //     ? Center(
-                //         child: CircularProgressIndicator(),
-                //       )
-                //     :
-
-                Expanded(
+            child: isloadingcomplete
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Expanded(
                     flex: 5,
                     child: ListView.builder(
                         shrinkWrap: true,
@@ -826,7 +830,10 @@ class _TasksState extends State<Tasks> {
                                     ),
                                   ],
                                 ),
-                                title: Text(pending[index].taskTitle!),
+                                title: Text(pending[index]
+                                    .task![0]
+                                    .taskTitle
+                                    .toString()),
                                 subtitle: Text(
                                   "Pending",
                                   style: TextStyle(color: Colors.grey),
