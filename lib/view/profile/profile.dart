@@ -48,19 +48,19 @@ class _ProfileState extends State<Profile> {
 
     attendanceCall();
 
-    taskcall();
+    // taskcall();
 
-    timer = Timer.periodic(
-        Duration(seconds: 2), (Timer t) => checkForNewSharedLists());
+    // timer = Timer.periodic(
+    //     Duration(seconds: 2), (Timer t) => checkForNewSharedLists());
     initPlatform();
   }
 
-  void checkForNewSharedLists() {
-    // do request here
-    setState(() {
-      taskcall();
-    });
-  }
+  // void checkForNewSharedLists() {
+  //   // do request here
+  //   setState(() {
+  //     taskcall();
+  //   });
+  // }
 
   attendanceCall() {
     controller.attendaceEmploye();
@@ -209,32 +209,32 @@ class _ProfileState extends State<Profile> {
 
                     // check
 
-                    Expanded(flex: 2, child: checkimage()),
+                    // Expanded(flex: 2, child: checkimage()),
 
                     // check
 
-                    Expanded(
-                      flex: 9,
-                      child: GetBuilder<ProfileController>(
-                        init: ProfileController(),
-                        builder: (controller) {
-                          return ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: controller.getProfileModel.length,
-                            itemBuilder: (context, index) {
-                              var data = controller.getProfileModel[index];
-                              return ProfileTiles(
-                                date: data.date,
-                                status: data.status,
-                                verified: data.verified,
-                                notVerified: data.notVerified,
-                                warning: data.warning,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
+                    // Expanded(
+                    //   flex: 9,
+                    //   child: GetBuilder<ProfileContr oller>(
+                    //     init: ProfileController(),
+                    //     builder: (controller) {
+                    //       return ListView.builder(
+                    //         physics: const BouncingScrollPhysics(),
+                    //         itemCount: controller.getProfileModel.length,
+                    //         itemBuilder: (context, index) {
+                    //           var data = controller.getProfileModel[index];
+                    //           return ProfileTiles(
+                    //             date: data.date,
+                    //             status: data.status,
+                    //             verified: data.verified,
+                    //             notVerified: data.notVerified,
+                    //             warning: data.warning,
+                    //           );
+                    //         },
+                    //       );
+                    //     },
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

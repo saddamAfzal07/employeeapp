@@ -55,11 +55,11 @@ class _TasksState extends State<Tasks> {
     }
   }
 
-  var completedcount = 0;
-  var uncompletedcount = 0;
-  var pendingcount = 0;
+  // var completedcount = 0;
+  // var uncompletedcount = 0;
+  // var pendingcount = 0;
 
-  var taskcount;
+  // var taskcount;
 
   DateTime now =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -138,21 +138,26 @@ class _TasksState extends State<Tasks> {
     // do request here
     setState(() {
       taskcall();
-      // category = [];
-      // fetchapi();
+      category = [];
+      fetchapi();
     });
   }
 
+  LoginController controller = Get.put(LoginController());
   var fname = Usererdatalist.F_NAME;
 
   Timer? timer;
   @override
   void initState() {
     super.initState();
+    controller.employeTaskCount();
+    // apirecall();
 
     fetchapi();
-    timer = Timer.periodic(
-        Duration(seconds: 2), (Timer t) => checkForNewSharedLists());
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) {
+      // checkForNewSharedLists();
+      controller.employeTaskCount();
+    });
 
     // WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
     //   _refreshIndicaorkey.currentState!.toString();
@@ -167,7 +172,7 @@ class _TasksState extends State<Tasks> {
 
   late StreamController _streamController;
   late Stream _stream;
-  LoginController controller = Get.put(LoginController());
+
   var initial = 0;
   // File? image;
   var pick;
@@ -190,6 +195,9 @@ class _TasksState extends State<Tasks> {
     Future.delayed(Duration(milliseconds: 100), () {
       category = [];
       fetchapi();
+
+      // controller.employeTaskCount();
+      print("recall");
     });
   }
 

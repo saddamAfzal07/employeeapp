@@ -109,26 +109,34 @@ class LoginController extends GetxController {
       'Authorization': 'Bearer $token',
     });
     // print(response.body);
-
+    Map<String, dynamic> responsedata = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      print("get response");
+      if (responsedata["error"] == "No Points Found") {
+        yearpoints.value = 0.toString();
+        monthpoints.value = 0.toString();
+        previousmonthppoints.value = 0.toString();
+      } else {
+        yearpoints.value = responsedata["this_year_count"].toString();
+        monthpoints.value = responsedata["this_month_count"].toString();
+        previousmonthppoints.value =
+            responsedata["previous_month_count"].toString();
+      }
 
-      Map<String, dynamic> responsedata = jsonDecode(response.body);
+      print("get response");
 
       // print("check=>");
       // print(responsedata);
 
-      yearpoints.value = responsedata["this_year_count"].toString();
-      monthpoints.value = responsedata["this_month_count"].toString();
-      previousmonthppoints.value =
-          responsedata["previous_month_count"].toString();
     } else {
+      yearpoints.value = 0.toString();
+      monthpoints.value = 0.toString();
+      previousmonthppoints.value = 0.toString();
       print("not response");
     }
   }
 
   employeTaskCount() async {
-    print("startt");
+    print("taskcount");
     var token = Usererdatalist.usertoken;
 
     var url = "https://thepointsystemapp.com/employee/public/api/task/counts";
@@ -139,8 +147,6 @@ class LoginController extends GetxController {
     // print(response.body);
 
     if (response.statusCode == 200) {
-      print("get response");
-
       Map<String, dynamic> responsedata = jsonDecode(response.body);
 
       // print("check=>");

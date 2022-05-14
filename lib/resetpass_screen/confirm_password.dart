@@ -1,40 +1,44 @@
-import 'package:employeeapp/controller/login/logincontrolller.dart';
-import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
-import 'package:employeeapp/resetpass_screen/enter_email.dart';
-import 'package:employeeapp/view/constant/constant.dart';
-import 'package:employeeapp/view/profile/profile.dart';
-import 'package:employeeapp/view/splash_screen/splash_screen.dart';
-import 'package:employeeapp/view/widget/my_button.dart';
-import 'package:employeeapp/view/widget/my_text_field.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:form_field_validator/form_field_validator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:connectivity/connectivity.dart';
+import 'dart:convert';
 
-class Login extends StatefulWidget {
+import 'package:employeeapp/view/constant/constant.dart';
+import 'package:employeeapp/view/user/login.dart';
+import 'package:employeeapp/view/widget/my_button.dart';
+import 'package:flutter/material.dart';
+import 'package:form_field_validator/form_field_validator.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+
+class ConfirmPassword extends StatefulWidget {
+  String userid;
+  ConfirmPassword({Key? key, required this.userid}) : super(key: key);
+
   @override
-  State<Login> createState() => _LoginState();
+  State<ConfirmPassword> createState() => _ConfirmPasswordState();
 }
 
-class _LoginState extends State<Login> {
-  SharedPreferences? logindata;
-  bool? newuser;
+class _ConfirmPasswordState extends State<ConfirmPassword> {
+  final _formkey = GlobalKey<FormState>();
+  TextEditingController password = TextEditingController();
+  TextEditingController confirmpass = TextEditingController();
+  bool isLoaading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Login();
-    // check();
-    checkiflogin();
-    // Login();
-  }
-
-  void check() async {
-    var connectresult = await (Connectivity().checkConnectivity());
-    if (connectresult == ConnectivityResult.none) {
+  resetpass() async {
+    setState(() {
+      isLoaading = true;
+    });
+    var response = await http.post(
+        Uri.parse(
+            "https://thepointsystemapp.com/employee/public/api/employee/password/update"),
+        body: {
+          'user_id': widget.userid,
+          'password': password.text,
+        });
+    if (response.statusCode == 200) {
+      setState(() {
+        isLoaading = false;
+      });
       Get.snackbar(
-        "Check Internet Connectivity",
+        "Password Successfully Reset",
         "",
         colorText: Colors.white,
         backgroundColor: Colors.grey,
@@ -42,52 +46,67 @@ class _LoginState extends State<Login> {
         borderRadius: 10,
         borderWidth: 2,
       );
-    } else if (connectresult == ConnectivityResult.mobile) {
-      Login();
-    } else if (connectresult == ConnectivityResult.wifi) {
-      Login();
-    }
-  }
 
-  LoginController controller = Get.put(LoginController());
-  final _formkey = GlobalKey<FormState>();
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController passcontroller = TextEditingController();
-  var labelColor;
-  Login() {
-    final isvalid = _formkey.currentState!.validate();
-    if (isvalid) {
-      controller.Loginwithdetails(emailcontroller.text, passcontroller.text);
-      logindata!.setBool("login", false);
-      logindata!.setString("username", emailcontroller.text);
-      logindata!.setString("password", passcontroller.text);
-      // logindata!.setString("password", passcontroller.text);
-      // logindata!.setString("name", Usererdatalist.NAME);
-      // logindata!.setString("fullname", Usererdatalist.F_NAME);
-      // logindata!.setString("id", Usererdatalist.Id_no);
+      Map<String, dynamic> responsedata = jsonDecode(response.body);
 
-      // logindata!.setString("image1", Usererdatalist.image);
-
-      // Get.offAll(() => Profile());
-    } else {}
-  }
-
-  String? passvalidation(value) {
-    if (value == null || value.isEmpty) {
-      return "password is required";
-    } else if (value.length < 5) {
-      return "password must be  5 Characters";
-    } else if (value.length > 15) {
-      return "password is too Long";
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Login()));
     } else {
-      return null;
+      Get.snackbar(
+        "Try Again",
+        "",
+        colorText: Colors.white,
+        backgroundColor: Colors.grey,
+        snackPosition: SnackPosition.BOTTOM,
+        borderRadius: 10,
+        borderWidth: 2,
+      );
     }
   }
 
+  passcheck() {
+    print(" check");
+    final isvalid = _formkey.currentState!.validate();
+    if (isvalid && password.text == confirmpass.text) {
+      resetpass();
+    } else {
+      print("not match");
+      Get.snackbar(
+        "Password & Confirm Password must be same",
+        "",
+        colorText: Colors.white,
+        backgroundColor: Colors.grey,
+        snackPosition: SnackPosition.BOTTOM,
+        borderRadius: 10,
+        borderWidth: 2,
+      );
+    }
+  }
+
+  // String? passvalidation(value) {
+  //   if (value == null || value.isEmpty) {
+  //     return "password is required";
+  //   } else if (value.length > 15) {
+  //     return "password is too Long";
+  //   } else {
+  //     return null;
+  //   }
+  // }
+
+  var labelColor;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: kSecondaryColor,
+        title: Text(
+          "Set Password",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Form(
@@ -98,16 +117,20 @@ class _LoginState extends State<Login> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Logo(),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/LOGIN.png',
-                      height: 48,
-                    ),
+                  SizedBox(
+                    height: 250,
+                    width: 300,
+                    child: Image.asset("assets/images/password.png"),
+                  ),
+                  Text(
+                    "Enter  Password ",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: kSecondaryColor),
                   ),
                   SizedBox(
-                    height: 40,
+                    height: 10,
                   ),
+                  ///////////////
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: Focus(
@@ -119,19 +142,20 @@ class _LoginState extends State<Login> {
                         });
                       },
                       child: TextFormField(
-                        controller: emailcontroller,
+                        controller: password,
+                        obscureText: true,
                         // validator: (value) {
                         //   if (value == null || value.isEmpty) {
-                        //     return "Email is required";
+                        //     return "Password is required";
                         //   }
                         //   return null;
                         // },
-                        validator: MultiValidator(
-                          [
-                            RequiredValidator(errorText: "Email is required"),
-                            EmailValidator(errorText: "Not a valid Email"),
-                          ],
-                        ),
+                        // validator: MultiValidator([
+                        //   MinLengthValidator(6,
+                        //       errorText: "Password must be 6 characters")
+                        // ]),
+                        validator: RequiredValidator(
+                            errorText: 'Password is required'),
                         onTap: () {},
                         cursorColor: kGreyColor,
                         textAlignVertical: TextAlignVertical.center,
@@ -141,15 +165,15 @@ class _LoginState extends State<Login> {
                         ),
                         obscuringCharacter: "*",
                         decoration: InputDecoration(
-                          labelText: 'Email',
+                          labelText: 'Password',
+                          prefixIcon: Icon(Icons.lock),
                           labelStyle: TextStyle(
                             fontSize: 18,
                             color: labelColor,
                           ),
-                          hintText: 'example@companyname.com',
-                          prefixIcon: Icon(Icons.email),
+                          hintText: '*******',
                           hintStyle: TextStyle(
-                            fontSize: 18,
+                            fontSize: 14,
                             color: kBlackColor.withOpacity(0.6),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
@@ -179,6 +203,14 @@ class _LoginState extends State<Login> {
                     ),
                   ),
 
+                  Text(
+                    "Confirm Password ",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: kSecondaryColor),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   ///////////////
                   Padding(
                     padding: const EdgeInsets.only(bottom: 20),
@@ -191,7 +223,7 @@ class _LoginState extends State<Login> {
                         });
                       },
                       child: TextFormField(
-                        controller: passcontroller,
+                        controller: confirmpass,
                         obscureText: true,
                         // validator: (value) {
                         //   if (value == null || value.isEmpty) {
@@ -203,7 +235,8 @@ class _LoginState extends State<Login> {
                         //   MinLengthValidator(6,
                         //       errorText: "Password must be 6 characters")
                         // ]),
-                        validator: passvalidation,
+                        validator: RequiredValidator(
+                            errorText: 'Password is required'),
                         onTap: () {},
                         cursorColor: kGreyColor,
                         textAlignVertical: TextAlignVertical.center,
@@ -213,10 +246,10 @@ class _LoginState extends State<Login> {
                         ),
                         obscuringCharacter: "*",
                         decoration: InputDecoration(
-                          labelText: 'Password',
+                          labelText: 'Confirm Password',
                           prefixIcon: Icon(Icons.lock),
                           labelStyle: TextStyle(
-                            fontSize: 18,
+                            fontSize: 14,
                             color: labelColor,
                           ),
                           hintText: '*******',
@@ -250,50 +283,17 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ),
-                  // MyTextField(
-                  //   labelText: 'Email',
-                  //   hintText: 'example@companyname.com',
-                  // ),
-                  // MyTextField2(
-                  //   labelText: 'Password',
-                  //   hintText: '*****',
-                  //   isObSecure: true,
-                  // ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EnterEmail()));
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: const [
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            "Reset Password ",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: kSecondaryColor),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ///////////////
 
-                  Obx(
-                    () => controller.isdatasubmit.value == false
-                        ? MyButton(
-                            onPressed: () {
-                              // Login();
-                              check();
-                            },
-                            text: 'Login',
-                            textSize: 18,
-                          )
-                        : Center(child: CircularProgressIndicator()),
-                  )
+                  isLoaading
+                      ? CircularProgressIndicator()
+                      : MyButton(
+                          onPressed: () {
+                            passcheck();
+                          },
+                          text: 'Reset Password',
+                          textSize: 18,
+                        )
                 ],
               ),
             ),
@@ -301,31 +301,5 @@ class _LoginState extends State<Login> {
         ),
       ),
     );
-  }
-
-  late SharedPreferences logindataa;
-  late String usernamme;
-  late String pass;
-
-  void checkiflogin() async {
-    logindata = await SharedPreferences.getInstance();
-    newuser = (logindata!.getBool("login") ?? true);
-    print(newuser);
-    if (newuser == false) {
-      logindataa = await SharedPreferences.getInstance();
-      setState(() {
-        usernamme = logindataa.getString("username").toString();
-        pass = logindataa.getString("password")!;
-
-        // nameu = logindata.getString("name")!;
-        // fullname = logindata.getString("fullname")!;
-        // id = logindata.getString("id")!;
-        // userimage = logindata.getString("image1")!;
-      });
-      controller.Loginwithdetails(usernamme, pass);
-
-      // Get.offAll(() => Profile());
-      // print(newuser);
-    }
   }
 }
