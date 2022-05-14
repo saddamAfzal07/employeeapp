@@ -91,9 +91,11 @@ class _TasksState extends State<Tasks> {
 
     if (response.statusCode == 200) {
       if (data["daily_tasks"].isEmpty) {
-        setState(() {
-          notext = true;
-        });
+        if (mounted) {
+          setState(() {
+            notext = true;
+          });
+        }
       } else {
         for (int i = 0; i < data["daily_tasks"].length; i++) {
           Map obj = data["daily_tasks"][i];
@@ -129,7 +131,7 @@ class _TasksState extends State<Tasks> {
   }
 
   taskcall() async {
-    controller.Tasks(now, id);
+    // controller.Tasks(now, id);
   }
 
   void checkForNewSharedLists() {
@@ -193,6 +195,9 @@ class _TasksState extends State<Tasks> {
 
   bool imagesubmit = false;
   uploadImage(int index) async {
+    print("call image submit");
+    print(category[index].image);
+    print(category[index].id);
     // print('token' + Usererdatalist.usertoken.toString());
 
     // ignore: unused_local_variable
@@ -210,8 +215,7 @@ class _TasksState extends State<Tasks> {
     multipartRequest.headers.addAll(headers);
 
     multipartRequest.fields.addAll({
-      "assigned_task_specific_id":
-          category[index].assignedTaskSpecificId.toString(),
+      "assigned_task_specific_id": category[index].id.toString(),
     });
 
     multipartRequest.files.add(await http.MultipartFile.fromPath(
@@ -255,8 +259,13 @@ class _TasksState extends State<Tasks> {
   bool isloadinguncomplete = true;
   bool isloadingcomplete = true;
 
+  bool load = false;
+
   List<RejectedTasks> uncmplete = [];
   uncompleteapi() async {
+    setState(() {
+      load = true;
+    });
     var response = await http.get(
         Uri.parse(
             "https://thepointsystemapp.com/employee/public/api/employee/un-approved/tasks"),
@@ -267,19 +276,29 @@ class _TasksState extends State<Tasks> {
 
     if (response.statusCode == 200) {
       setState(() {});
-      for (int i = 0; i < data["rejectedTasks"].length; i++) {
-        Map obj = data["rejectedTasks"][i];
-        RejectedTasks pos = RejectedTasks();
-        pos = RejectedTasks.fromJson(obj);
-        uncmplete.add(pos);
-        print("uncomplete");
-        print(uncmplete);
+      if (data["error"] == "No Un-Compeleted Task Found") {
+        setState(() {
+          notext = true;
+        });
+      } else {
+        setState(() {
+          notext = false;
+        });
+        for (int i = 0; i < data["rejectedTasks"].length; i++) {
+          Map obj = data["rejectedTasks"][i];
+          RejectedTasks pos = RejectedTasks();
+          pos = RejectedTasks.fromJson(obj);
+          uncmplete.add(pos);
+          print("uncomplete");
+          print(uncmplete);
+        }
       }
       setState(() {
         isloadinguncomplete = false;
       });
     } else {
       setState(() {
+        notext = false;
         isloadinguncomplete = false;
       });
     }
@@ -287,6 +306,9 @@ class _TasksState extends State<Tasks> {
 
   List<CompletedTask> complete = [];
   completeapi() async {
+    setState(() {
+      load = true;
+    });
     var response = await http.get(
         Uri.parse(
             "https://thepointsystemapp.com/employee/public/api/employee/completed/tasks"),
@@ -299,14 +321,29 @@ class _TasksState extends State<Tasks> {
       setState(() {
         isloadingcomplete = false;
       });
-      for (int i = 0; i < data["completedTask"].length; i++) {
-        Map obj = data["completedTask"][i];
-        CompletedTask pos = CompletedTask();
-        pos = CompletedTask.fromJson(obj);
-        complete.add(pos);
-        print("uncomplete");
-        print(complete);
+      if (data["error"] == "No Compeleted Task Found") {
+        print("No Compeleted Task Found");
+        setState(() {
+          notext = true;
+        });
+      } else {
+        print("Compeleted Task Found");
+        setState(() {
+          notext = false;
+        });
+
+        for (int i = 0; i < data["completedTask"].length; i++) {
+          Map obj = data["completedTask"][i];
+          CompletedTask pos = CompletedTask();
+          pos = CompletedTask.fromJson(obj);
+          complete.add(pos);
+
+          print(complete);
+        }
       }
+      setState(() {
+        isloadingcomplete = false;
+      });
     } else {
       setState(() {
         isloadingcomplete = false;
@@ -316,6 +353,9 @@ class _TasksState extends State<Tasks> {
 
   List<Pending> pending = [];
   pendingapi() async {
+    setState(() {
+      load = true;
+    });
     var response = await http.get(
       Uri.parse(
           "https://thepointsystemapp.com/employee/public/api/employee/pending-for-approval/tasks"),
@@ -329,16 +369,30 @@ class _TasksState extends State<Tasks> {
       setState(() {
         isloadingcomplete = false;
       });
-      for (int i = 0; i < data["completedTask"].length; i++) {
-        Map obj = data["completedTask"][i];
-        Pending pos = Pending();
-        pos = Pending.fromJson(obj);
-        pending.add(pos);
-        print("uncomplete");
-        print(complete);
+
+      if (data["error"] == "No Pending For Approval Task  Found") {
+        setState(() {
+          notext = true;
+        });
+      } else {
+        setState(() {
+          notext = false;
+        });
+        for (int i = 0; i < data["completedTask"].length; i++) {
+          Map obj = data["completedTask"][i];
+          Pending pos = Pending();
+          pos = Pending.fromJson(obj);
+          pending.add(pos);
+          print("uncomplete");
+          print(complete);
+        }
       }
+      setState(() {
+        isloadingcomplete = false;
+      });
     } else {
       setState(() {
+        notext = true;
         isloadingcomplete = false;
       });
     }
@@ -346,6 +400,7 @@ class _TasksState extends State<Tasks> {
 
   @override
   Widget build(BuildContext context) {
+    LoginController loginCotroller = Get.find();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -419,10 +474,13 @@ class _TasksState extends State<Tasks> {
                             weight: FontWeight.w500,
                             color: kPrimaryColor,
                           ),
-                          trailing: Text(
-                            controller.taskcount.value,
-                            style: TextStyle(fontSize: 30, color: Colors.white),
-                          ),
+                          trailing: Obx(() {
+                            return Text(
+                              controller.taskcount.value.toString(),
+                              style:
+                                  TextStyle(fontSize: 30, color: Colors.white),
+                            );
+                          }),
                         ),
                       ),
                     ),
@@ -467,14 +525,17 @@ class _TasksState extends State<Tasks> {
                                           : kGreenColor,
                                       weight: FontWeight.w500,
                                     ),
-                                    MyText(
-                                      text: completedcount,
-                                      size: 22,
-                                      color: visiblecompleted
-                                          ? kSecondaryColor
-                                          : kGreenColor,
-                                      weight: FontWeight.w700,
-                                    ),
+                                    Obx(() {
+                                      return MyText(
+                                        text: loginCotroller.complete.value
+                                            .toString(),
+                                        size: 22,
+                                        color: visiblewaiting
+                                            ? kSecondaryColor
+                                            : kGreenColor,
+                                        weight: FontWeight.w700,
+                                      );
+                                    }),
                                   ],
                                 ),
                               ),
@@ -506,14 +567,17 @@ class _TasksState extends State<Tasks> {
                                           : kTertiaryColor,
                                       weight: FontWeight.w500,
                                     ),
-                                    MyText(
-                                      text: uncompletedcount,
-                                      size: 22,
-                                      color: visibleuncompleted
-                                          ? kSecondaryColor
-                                          : kTertiaryColor,
-                                      weight: FontWeight.w700,
-                                    ),
+                                    Obx(() {
+                                      return MyText(
+                                        text: loginCotroller.uncomplete.value
+                                            .toString(),
+                                        size: 22,
+                                        color: visiblewaiting
+                                            ? kSecondaryColor
+                                            : kTertiaryColor,
+                                        weight: FontWeight.w700,
+                                      );
+                                    }),
                                   ],
                                 ),
                               ),
@@ -544,14 +608,17 @@ class _TasksState extends State<Tasks> {
                                           : Colors.purple,
                                       weight: FontWeight.w500,
                                     ),
-                                    MyText(
-                                      text: controller.taskcount,
-                                      size: 22,
-                                      color: visiblewaiting
-                                          ? kSecondaryColor
-                                          : Colors.purple,
-                                      weight: FontWeight.w700,
-                                    ),
+                                    Obx(() {
+                                      return MyText(
+                                        text: loginCotroller.taskcount.value
+                                            .toString(),
+                                        size: 22,
+                                        color: visiblewaiting
+                                            ? kSecondaryColor
+                                            : Colors.purple,
+                                        weight: FontWeight.w700,
+                                      );
+                                    }),
                                   ],
                                 ),
                               ),
@@ -581,14 +648,17 @@ class _TasksState extends State<Tasks> {
                                           : Colors.grey,
                                       weight: FontWeight.w500,
                                     ),
-                                    MyText(
-                                      text: pendingcount,
-                                      size: 22,
-                                      color: visiblepending
-                                          ? kSecondaryColor
-                                          : Colors.grey,
-                                      weight: FontWeight.w700,
-                                    ),
+                                    Obx(() {
+                                      return MyText(
+                                        text: loginCotroller.pending.value
+                                            .toString(),
+                                        size: 22,
+                                        color: visiblewaiting
+                                            ? kSecondaryColor
+                                            : Colors.grey,
+                                        weight: FontWeight.w700,
+                                      );
+                                    }),
                                   ],
                                 ),
                               ),
@@ -723,39 +793,46 @@ class _TasksState extends State<Tasks> {
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : Expanded(
-                    flex: 5,
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: uncmplete.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(
-                                left: 20, right: 20, bottom: 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(9),
-                              border: Border.all(color: kTertiaryColor),
-                            ),
-                            child: ListTile(
-                                leading: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/Vector (9).png',
-                                      height: 20,
-                                    ),
-                                  ],
+                : notext
+                    ? Center(
+                        child: Padding(
+                        padding: const EdgeInsets.only(top: 170),
+                        child: Text("There is not any uncompleted task"),
+                      ))
+                    : Expanded(
+                        flex: 5,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: uncmplete.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: const EdgeInsets.only(
+                                    left: 20, right: 20, bottom: 15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(9),
+                                  border: Border.all(color: kTertiaryColor),
                                 ),
-                                title: Text(uncmplete[index]
-                                    .task![0]
-                                    .taskTitle
-                                    .toString()),
-                                subtitle: Text(
-                                  "Not verified +1 points",
-                                  style: TextStyle(color: Colors.red),
-                                )),
-                          );
-                        })),
+                                child: ListTile(
+                                    leading: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/Vector (9).png',
+                                          height: 20,
+                                        ),
+                                      ],
+                                    ),
+                                    title: Text(uncmplete[index]
+                                        .task![0]
+                                        .taskTitle
+                                        .toString()),
+                                    subtitle: Text(
+                                      "Not verified +1 points",
+                                      style: TextStyle(color: Colors.red),
+                                    )),
+                              );
+                            })),
           ),
 
           ////complete
@@ -765,39 +842,46 @@ class _TasksState extends State<Tasks> {
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : Expanded(
-                    flex: 5,
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: complete.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(
-                                left: 20, right: 20, bottom: 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(9),
-                              border: Border.all(color: kGreenColor),
-                            ),
-                            child: ListTile(
-                                leading: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/Vector (8).png',
-                                      height: 20,
-                                    ),
-                                  ],
+                : notext
+                    ? Center(
+                        child: Padding(
+                        padding: const EdgeInsets.only(top: 170),
+                        child: Text("There is not any completed task"),
+                      ))
+                    : Expanded(
+                        flex: 5,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: complete.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: const EdgeInsets.only(
+                                    left: 20, right: 20, bottom: 15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(9),
+                                  border: Border.all(color: kGreenColor),
                                 ),
-                                title: Text(complete[index]
-                                    .task![0]
-                                    .taskTitle
-                                    .toString()),
-                                subtitle: Text(
-                                  "Verified",
-                                  style: TextStyle(color: kGreenColor),
-                                )),
-                          );
-                        })),
+                                child: ListTile(
+                                    leading: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/Vector (8).png',
+                                          height: 20,
+                                        ),
+                                      ],
+                                    ),
+                                    title: Text(complete[index]
+                                        .task![0]
+                                        .taskTitle
+                                        .toString()),
+                                    subtitle: Text(
+                                      "Verified",
+                                      style: TextStyle(color: kGreenColor),
+                                    )),
+                              );
+                            })),
           ),
 
           ////pending
@@ -807,39 +891,46 @@ class _TasksState extends State<Tasks> {
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : Expanded(
-                    flex: 5,
-                    child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: pending.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(
-                                left: 20, right: 20, bottom: 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(9),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: ListTile(
-                                leading: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      'assets/images/Vector (10).png',
-                                      height: 25,
-                                    ),
-                                  ],
+                : notext
+                    ? Center(
+                        child: Padding(
+                        padding: const EdgeInsets.only(top: 170),
+                        child: Text("There is not any Pending task"),
+                      ))
+                    : Expanded(
+                        flex: 5,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: pending.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: const EdgeInsets.only(
+                                    left: 20, right: 20, bottom: 15),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(9),
+                                  border: Border.all(color: Colors.grey),
                                 ),
-                                title: Text(pending[index]
-                                    .task![0]
-                                    .taskTitle
-                                    .toString()),
-                                subtitle: Text(
-                                  "Pending",
-                                  style: TextStyle(color: Colors.grey),
-                                )),
-                          );
-                        })),
+                                child: ListTile(
+                                    leading: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/Vector (10).png',
+                                          height: 25,
+                                        ),
+                                      ],
+                                    ),
+                                    title: Text(pending[index]
+                                        .task![0]
+                                        .taskTitle
+                                        .toString()),
+                                    subtitle: Text(
+                                      "Pending",
+                                      style: TextStyle(color: Colors.grey),
+                                    )),
+                              );
+                            })),
           ),
         ],
       ),

@@ -6,6 +6,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:employeeapp/controller/login/logincontrolller.dart';
+import 'package:employeeapp/controller/login/logincontrolller.dart';
 import 'package:employeeapp/controller/profile_controller/profile_controller.dart';
 import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
 
@@ -32,6 +33,7 @@ import 'package:flutter/material.dart' hide Action;
 import 'package:eosdart_ecc/eosdart_ecc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -43,10 +45,14 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
+
+    attendanceCall();
+
     taskcall();
 
     timer = Timer.periodic(
         Duration(seconds: 2), (Timer t) => checkForNewSharedLists());
+    initPlatform();
   }
 
   void checkForNewSharedLists() {
@@ -56,10 +62,17 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  attendanceCall() {
+    controller.attendaceEmploye();
+    controller.employeTaskCount();
+    print("==>");
+    print(controller.yearpoints);
+  }
+
   LoginController controller = Get.put(LoginController());
 
   taskcall() async {
-    controller.Tasks(now, id);
+    // controller.Tasks(now, id);
   }
 
   DateTime now =
@@ -73,6 +86,42 @@ class _ProfileState extends State<Profile> {
   void dispose() {
     timer?.cancel();
     super.dispose();
+  }
+
+  String? tokensignal;
+  Future<void> initPlatform() async {
+    print("enter");
+    await OneSignal.shared.setAppId("671b3c95-34db-4eef-b71d-b2fe54dc8edc");
+    await OneSignal.shared.getDeviceState().then((value) => {
+          print("userid==>"),
+          print(value!.userId),
+          setState(() {
+            tokensignal = value.userId;
+          }),
+          print("====>${tokensignal}"),
+        });
+    oneSignalToken();
+  }
+
+  oneSignalToken() async {
+    print("startt fun");
+    var token = Usererdatalist.usertoken;
+
+    var response = await http.post(
+      Uri.parse(
+          "https://thepointsystemapp.com/employee/public/api/one/signal/token/save"),
+      body: {'email': Usererdatalist.EMAIL, 'token': tokensignal},
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print("token");
+      print(" response 200");
+    } else {
+      print("not response");
+    }
   }
 
   @override
@@ -232,12 +281,36 @@ class _ProfileState extends State<Profile> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              MyText(
-                                text: '5',
-                                color: kTertiaryColor,
-                                weight: FontWeight.w500,
-                                size: 36,
-                              ),
+                              Obx(() {
+                                return
+                                    //  loginCotroller.yearpoints.value.isBool
+                                    //     ?
+                                    Text(
+                                  loginCotroller.yearpoints.value.toString(),
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    color: kTertiaryColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                );
+                                // : Center(
+                                //     child: Padding(
+                                //       padding: const EdgeInsets.all(12),
+                                //       child: CircularProgressIndicator(),
+
+                                //       //  Text(
+                                //       //   "Please wait",
+                                //       //   style: TextStyle(fontSize: 18),
+                                //       // ),
+                                //     ),
+                                //   );
+                              }),
+                              // MyText(
+                              //   text: '5',
+                              //   color: kTertiaryColor,
+                              //   weight: FontWeight.w500,
+                              //   size: 36,
+                              // ),
                               const SizedBox(
                                 width: 20,
                               ),
@@ -288,19 +361,9 @@ class _ProfileState extends State<Profile> {
                                 //G bhai Ok Take care bro!
 
                                 Obx(() {
-                                  return loginCotroller.showtasks.value
-                                      ? Text(
-                                          loginCotroller.taskcount.value
-                                              .toString(),
-                                          style: TextStyle(fontSize: 34),
-                                        )
-                                      : Padding(
-                                          padding: const EdgeInsets.all(12),
-                                          child: Text(
-                                            "Please wait",
-                                            style: TextStyle(fontSize: 18),
-                                          ),
-                                        );
+                                  return Text(
+                                      loginCotroller.taskcount.value.toString(),
+                                      style: TextStyle(fontSize: 34));
                                 }),
 
                                 const SizedBox(

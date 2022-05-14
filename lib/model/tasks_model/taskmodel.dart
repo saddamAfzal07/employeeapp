@@ -3,22 +3,17 @@ import 'dart:io';
 class DailyTasks {
   String? taskId;
   String? taskStatus;
-  String? assignedTaskSpecificId;
+  String? id;
   List<Task>? task;
   File? image;
 
-  DailyTasks(
-      {this.taskId,
-      this.taskStatus,
-      this.assignedTaskSpecificId,
-      this.task,
-      this.image});
+  DailyTasks({this.taskId, this.taskStatus, this.id, this.task, this.image});
 
   DailyTasks.fromJson(Map<dynamic, dynamic> json) {
     taskId = json['task_id'];
     taskStatus = json['task_status'];
     image = null;
-    assignedTaskSpecificId = json['assigned_task_specific_id'];
+    id = json['id'].toString();
     if (json['task'] != null) {
       task = <Task>[];
       json['task'].forEach((v) {
@@ -31,7 +26,7 @@ class DailyTasks {
     final Map<dynamic, dynamic> data = new Map<dynamic, dynamic>();
     data['task_id'] = this.taskId;
     data['task_status'] = this.taskStatus;
-    data['assigned_task_specific_id'] = this.assignedTaskSpecificId;
+    data['id'] = this.id;
     if (this.task != null) {
       data['task'] = this.task!.map((v) => v.toJson()).toList();
     }

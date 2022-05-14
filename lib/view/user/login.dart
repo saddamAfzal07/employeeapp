@@ -291,7 +291,7 @@ class _LoginState extends State<Login> {
     if (newuser == false) {
       logindataa = await SharedPreferences.getInstance();
       setState(() {
-        usernamme = logindataa.getString("username")!;
+        usernamme = logindataa.getString("username").toString();
         pass = logindataa.getString("password")!;
 
         // nameu = logindata.getString("name")!;

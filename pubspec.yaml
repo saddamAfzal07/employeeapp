@@ -24,7 +24,7 @@ dependencies:
   eosdart_ecc: ^0.4.4
   shared_preferences: ^2.0.12
   connectivity: ^3.0.6
-  
+  onesignal_flutter: ^3.3.0
 
 
 dev_dependencies:

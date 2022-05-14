@@ -16,10 +16,14 @@ class LoginController extends GetxController {
   var isdatareading = false.obs;
   var showtasks = false.obs;
 
-  RxString taskcount = '...'.obs;
-  RxString uncomplete = '...'.obs;
-  RxString complete = '...'.obs;
-  RxString pending = '...'.obs;
+  RxString taskcount = ''.obs;
+  RxString uncomplete = ''.obs;
+  RxString complete = ''.obs;
+  RxString pending = ''.obs;
+
+  RxString yearpoints = ''.obs;
+  RxString monthpoints = ''.obs;
+  RxString previousmonthppoints = ''.obs;
 
   Loginwithdetails(String email, String password) async {
     isdatasubmit.value = true;
@@ -28,12 +32,9 @@ class LoginController extends GetxController {
         Uri.parse(
             "https://thepointsystemapp.com/employee/public/api/employeelogin"),
         body: {'email': email, 'password': password});
-    // print(response.body);
     if (response.statusCode == 200) {
       isdatasubmit.value = false;
       Map<String, dynamic> responsedata = jsonDecode(response.body);
-
-      // print("check=>");
 
       // Another method
       Usererdatalist.image = responsedata["emp_info"]["image"];
@@ -63,38 +64,94 @@ class LoginController extends GetxController {
     }
   }
 
-  void Tasks(
-    DateTime date,
-    String id,
-  ) async {
-    // print(id);
-    // print(date);
-    // isdatasubmit.value = true;
+  // void Tasks(
+  //   DateTime date,
+  //   String id,
+  // ) async {
+  //   // print(id);
+  //   // print(date);
+  //   // isdatasubmit.value = true;
+  //   var token = Usererdatalist.usertoken;
+
+  //   var url =
+  //       "https://thepointsystemapp.com/employee/public/api/employee/dailyTask";
+
+  //   var response = await http.post(Uri.parse(url), headers: {
+  //     'Authorization': 'Bearer $token',
+  //   }, body: {
+  //     'date': date.toString(),
+  //     'employee_id': id,
+  //   });
+  //   // print(id);
+  //   // print(date);
+
+  //   if (response.statusCode == 200) {
+  //     showtasks.value = true;
+  //     Map<String, dynamic> responsedata = jsonDecode(response.body);
+
+  //     // print("check=>");
+  //     print(responsedata);
+  //     // print(responsedata["count"]);
+  //     taskcount.value = responsedata["count"].toString();
+  //     uncomplete.value = responsedata["unCompletedCount"].toString();
+  //     complete.value = responsedata["completedCount"].toString();
+  //     pending.value = responsedata["pedningApprovalCount"].toString();
+  //   } else {}
+  // }
+  attendaceEmploye() async {
+    print("startt");
     var token = Usererdatalist.usertoken;
 
     var url =
-        "https://thepointsystemapp.com/employee/public/api/employee/dailyTask";
+        "https://thepointsystemapp.com/employee/public/api/current/year/points";
 
-    var response = await http.post(Uri.parse(url), headers: {
+    var response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token',
-    }, body: {
-      'date': date.toString(),
-      'employee_id': id,
     });
-    // print(id);
-    // print(date);
+    // print(response.body);
 
     if (response.statusCode == 200) {
-      showtasks.value = true;
+      print("get response");
+
       Map<String, dynamic> responsedata = jsonDecode(response.body);
 
       // print("check=>");
-      print(responsedata);
-      // print(responsedata["count"]);
-      taskcount.value = responsedata["count"].toString();
-      uncomplete.value = responsedata["unCompletedCount"].toString();
-      complete.value = responsedata["completedCount"].toString();
-      pending.value = responsedata["pedningApprovalCount"].toString();
-    } else {}
+      // print(responsedata);
+
+      yearpoints.value = responsedata["this_year_count"].toString();
+      monthpoints.value = responsedata["this_month_count"].toString();
+      previousmonthppoints.value =
+          responsedata["previous_month_count"].toString();
+    } else {
+      print("not response");
+    }
+  }
+
+  employeTaskCount() async {
+    print("startt");
+    var token = Usererdatalist.usertoken;
+
+    var url = "https://thepointsystemapp.com/employee/public/api/task/counts";
+
+    var response = await http.get(Uri.parse(url), headers: {
+      'Authorization': 'Bearer $token',
+    });
+    // print(response.body);
+
+    if (response.statusCode == 200) {
+      print("get response");
+
+      Map<String, dynamic> responsedata = jsonDecode(response.body);
+
+      // print("check=>");
+      // print(responsedata);
+
+      taskcount.value = responsedata["daily_task_count"].toString();
+      uncomplete.value = responsedata["rejected_task_count"].toString();
+      complete.value = responsedata["completed_task_count"].toString();
+      pending.value = responsedata["pending_task_count"].toString();
+    } else {
+      print("not response");
+    }
   }
 }
