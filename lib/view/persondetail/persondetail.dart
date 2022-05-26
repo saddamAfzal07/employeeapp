@@ -83,8 +83,7 @@ class _PersonaldetailState extends State<Personaldetail> {
             child: CircleAvatar(
               radius: 65,
               backgroundImage: NetworkImage(
-                  "https://thepointsystemapp.com/employee/public/" +
-                      Usererdatalist.image),
+                  "https://thepointsystemapp.com/" + Usererdatalist.image),
             ),
           ),
           SizedBox(

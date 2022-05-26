@@ -26,11 +26,11 @@ class LoginController extends GetxController {
   RxString previousmonthppoints = ''.obs;
 
   Loginwithdetails(String email, String password) async {
+    print("-------iiiii");
+    print(Api.baseurl);
     isdatasubmit.value = true;
 
-    var response = await http.post(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employeelogin"),
+    var response = await http.post(Uri.parse("${Api.baseurl}employeelogin"),
         body: {'email': email, 'password': password});
     if (response.statusCode == 200) {
       isdatasubmit.value = false;
@@ -102,8 +102,7 @@ class LoginController extends GetxController {
     print("startt");
     var token = Usererdatalist.usertoken;
 
-    var url =
-        "https://thepointsystemapp.com/employee/public/api/current/year/points";
+    var url = "${Api.baseurl}current/year/points";
 
     var response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token',
@@ -139,7 +138,7 @@ class LoginController extends GetxController {
     print("taskcount");
     var token = Usererdatalist.usertoken;
 
-    var url = "https://thepointsystemapp.com/employee/public/api/task/counts";
+    var url = "${Api.baseurl}task/counts";
 
     var response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token',

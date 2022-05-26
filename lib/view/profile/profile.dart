@@ -5,9 +5,9 @@ import 'dart:ffi';
 
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:employeeapp/controller/login/logincontrolller.dart';
-import 'package:employeeapp/controller/login/logincontrolller.dart';
-import 'package:employeeapp/controller/profile_controller/profile_controller.dart';
+
 import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
 
 import 'package:employeeapp/view/camera/camera.dart';
@@ -42,19 +42,11 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   Timer? timer;
-  @override
-  void initState() {
-    super.initState();
-
-    attendanceCall();
-
-    // timer = Timer.periodic(Duration(seconds: 2), (Timer t) => attendanceCall());
-    initPlatform();
-  }
 
   attendanceCall() {
     controller.attendaceEmploye();
     controller.employeTaskCount();
+    notificationCount();
     print("==>");
     print(controller.yearpoints);
   }
@@ -94,8 +86,7 @@ class _ProfileState extends State<Profile> {
     var token = Usererdatalist.usertoken;
 
     var response = await http.post(
-      Uri.parse(
-          "https://thepointsystemapp.com/employee/public/api/one/signal/token/save"),
+      Uri.parse("${Api.baseurl}one/signal/token/save"),
       body: {'email': Usererdatalist.EMAIL, 'token': tokensignal},
       headers: {
         'Authorization': 'Bearer $token',
@@ -110,15 +101,36 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  String notification = "";
+  notificationCount() async {
+    print("taskcount");
+    var token = Usererdatalist.usertoken;
+
+    var url = "${Api.baseurl}main/task/counts";
+
+    var response = await http.get(Uri.parse(url), headers: {
+      'Authorization': 'Bearer $token',
+    });
+    // print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responsedata = jsonDecode(response.body);
+
+      setState(() {
+        notification = responsedata["unread_notification_count"].toString();
+      });
+
+      print("not response");
+    }
+  }
+
   bool submit = false;
   var token = Usererdatalist.usertoken;
   checkDailyuniform() async {
-    var response = await http.get(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/uniform/check/task"),
-        headers: {
-          'Authorization': 'Bearer $token',
-        });
+    var response =
+        await http.get(Uri.parse("${Api.baseurl}uniform/check/task"), headers: {
+      'Authorization': 'Bearer $token',
+    });
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
@@ -193,9 +205,7 @@ class _ProfileState extends State<Profile> {
 
     // ignore: unnecessary_new
     final multipartRequest = new http.MultipartRequest(
-        "POST",
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/uniformCheck"));
+        "POST", Uri.parse("${Api.baseurl}employee/uniformCheck"));
     multipartRequest.headers.addAll(headers);
 
     multipartRequest.fields.addAll({});
@@ -247,6 +257,20 @@ class _ProfileState extends State<Profile> {
   }
 
   @override
+  void initState() {
+    print("0000000000");
+    print("back");
+    super.initState();
+    controller.attendaceEmploye();
+    controller.employeTaskCount();
+    notificationCount();
+    attendanceCall();
+
+    // timer = Timer.periodic(Duration(seconds: 2), (Timer t) => attendanceCall());
+    initPlatform();
+  }
+
+  @override
   Widget build(BuildContext context) {
     LoginController loginCotroller = Get.find();
     return Scaffold(
@@ -270,13 +294,25 @@ class _ProfileState extends State<Profile> {
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(100),
-                        child: Image.network(
-                          "https://thepointsystemapp.com/employee/public/" +
+                        child: CachedNetworkImage(
+                          imageUrl: "https://thepointsystemapp.com/" +
                               Usererdatalist.image,
                           height: 45,
                           width: 45,
                           fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Image.asset("assets/images/user.png"),
+                          errorWidget: (context, url, error) =>
+                              Image.asset("assets/images/user.png"),
                         ),
+
+                        //     Image.network(
+                        //   "https://thepointsystemapp.com/" +
+                        //       Usererdatalist.image,
+                        //   height: 45,
+                        //   width: 45,
+                        //   fit: BoxFit.cover,
+                        // ),
                       ),
                     ),
                     title: MyText(
@@ -289,7 +325,7 @@ class _ProfileState extends State<Profile> {
                       spacing: 12.0,
                       children: [
                         MyText(
-                          text: '2',
+                          text: notification,
                           size: 18,
                           weight: FontWeight.w700,
                           color: kPrimaryColor,

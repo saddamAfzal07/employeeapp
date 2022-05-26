@@ -5,6 +5,7 @@ class Notifi {
   String? markAsRead;
   String? createdAt;
   String? updatedAt;
+  String? conColor;
 
   Notifi(
       {this.id,
@@ -12,7 +13,8 @@ class Notifi {
       this.notificationText,
       this.markAsRead,
       this.createdAt,
-      this.updatedAt});
+      this.updatedAt,
+      this.conColor});
 
   Notifi.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
@@ -21,6 +23,7 @@ class Notifi {
     markAsRead = json['mark_as_read'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    conColor = null;
   }
 
   Map<String, dynamic> toJson() {

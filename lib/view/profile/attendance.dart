@@ -29,17 +29,14 @@ class _AttendanceState extends State<Attendance> {
       isloadingcomplete = true;
     });
 
-    var response = await http.get(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/current/year/points"),
-        headers: {
-          'Authorization': 'Bearer $token',
-        });
+    var response = await http
+        .get(Uri.parse("${Api.baseurl}current/year/points"), headers: {
+      'Authorization': 'Bearer $token',
+    });
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
       if (data["error"] == "No Points Found") {
-        print("No Compeleted Task Found");
         setState(() {
           notext = true;
         });
@@ -75,12 +72,10 @@ class _AttendanceState extends State<Attendance> {
       isloadingmonth = true;
     });
 
-    var response = await http.get(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/current/month/points"),
-        headers: {
-          'Authorization': 'Bearer $token',
-        });
+    var response = await http
+        .get(Uri.parse("${Api.baseurl}current/month/points"), headers: {
+      'Authorization': 'Bearer $token',
+    });
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
@@ -121,12 +116,10 @@ class _AttendanceState extends State<Attendance> {
       isloadinpreviousgmonth = true;
     });
 
-    var response = await http.get(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/previous/month/points"),
-        headers: {
-          'Authorization': 'Bearer $token',
-        });
+    var response = await http
+        .get(Uri.parse("${Api.baseurl}previous/month/points"), headers: {
+      'Authorization': 'Bearer $token',
+    });
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {

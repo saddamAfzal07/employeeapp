@@ -78,8 +78,7 @@ class _TasksState extends State<Tasks> {
 
     // });
     var response = await http.get(
-      Uri.parse(
-          "https://thepointsystemapp.com/employee/public/api/task/assigned?date=$selecteddate"),
+      Uri.parse("${Api.baseurl}task/assigned?date=$selecteddate"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -221,9 +220,7 @@ class _TasksState extends State<Tasks> {
 
     // ignore: unnecessary_new
     final multipartRequest = new http.MultipartRequest(
-        "POST",
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/task/assigned-submit"));
+        "POST", Uri.parse("${Api.baseurl}task/assigned-submit"));
     multipartRequest.headers.addAll(headers);
 
     multipartRequest.fields.addAll({
@@ -279,12 +276,10 @@ class _TasksState extends State<Tasks> {
     setState(() {
       load = true;
     });
-    var response = await http.get(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/un-approved/tasks"),
-        headers: {
-          'Authorization': 'Bearer $token',
-        });
+    var response = await http
+        .get(Uri.parse("${Api.baseurl}employee/un-approved/tasks"), headers: {
+      'Authorization': 'Bearer $token',
+    });
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
@@ -322,12 +317,10 @@ class _TasksState extends State<Tasks> {
     setState(() {
       load = true;
     });
-    var response = await http.get(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/completed/tasks"),
-        headers: {
-          'Authorization': 'Bearer $token',
-        });
+    var response = await http
+        .get(Uri.parse("${Api.baseurl}employee/completed/tasks"), headers: {
+      'Authorization': 'Bearer $token',
+    });
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
@@ -370,8 +363,7 @@ class _TasksState extends State<Tasks> {
       load = true;
     });
     var response = await http.get(
-      Uri.parse(
-          "https://thepointsystemapp.com/employee/public/api/employee/pending-for-approval/tasks"),
+      Uri.parse("${Api.baseurl}employee/pending-for-approval/tasks"),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -441,14 +433,14 @@ class _TasksState extends State<Tasks> {
                 Icons.refresh,
                 color: Colors.blue,
               )),
-          Center(
-            child: MyText(
-              text: '2',
-              size: 18,
-              weight: FontWeight.w700,
-              color: kSecondaryColor,
-            ),
-          ),
+          // Center(
+          //   child: MyText(
+          //     text: '2',
+          //     size: 18,
+          //     weight: FontWeight.w700,
+          //     color: kSecondaryColor,
+          //   ),
+          // ),
           const SizedBox(
             width: 12.0,
           ),

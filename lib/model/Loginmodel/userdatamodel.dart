@@ -12,3 +12,7 @@ class Usererdatalist {
   static String EMAIL = "";
   static String CELL_NO = "";
 }
+
+class Api {
+  static String baseurl = "https://thepointsystemapp.com/api/";
+}
