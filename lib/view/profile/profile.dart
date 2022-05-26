@@ -48,19 +48,9 @@ class _ProfileState extends State<Profile> {
 
     attendanceCall();
 
-    // taskcall();
-
-    // timer = Timer.periodic(
-    //     Duration(seconds: 2), (Timer t) => checkForNewSharedLists());
+    // timer = Timer.periodic(Duration(seconds: 2), (Timer t) => attendanceCall());
     initPlatform();
   }
-
-  // void checkForNewSharedLists() {
-  //   // do request here
-  //   setState(() {
-  //     taskcall();
-  //   });
-  // }
 
   attendanceCall() {
     controller.attendaceEmploye();
@@ -70,10 +60,6 @@ class _ProfileState extends State<Profile> {
   }
 
   LoginController controller = Get.put(LoginController());
-
-  taskcall() async {
-    // controller.Tasks(now, id);
-  }
 
   DateTime now =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -121,6 +107,142 @@ class _ProfileState extends State<Profile> {
       print(" response 200");
     } else {
       print("not response");
+    }
+  }
+
+  bool submit = false;
+  var token = Usererdatalist.usertoken;
+  checkDailyuniform() async {
+    var response = await http.get(
+        Uri.parse(
+            "https://thepointsystemapp.com/employee/public/api/uniform/check/task"),
+        headers: {
+          'Authorization': 'Bearer $token',
+        });
+    Map data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      if (data["show_uniform_check"] == true &&
+          data["uniform_check_submitted"] == false) {
+        print(" Task Found");
+
+        getimage();
+      } else {
+        if (data["uniform_check_submitted"] == true) {
+          Get.snackbar(
+            "Attendance Already Submit",
+            "",
+            colorText: Colors.white,
+            backgroundColor: Color(0xffbb33),
+            snackPosition: SnackPosition.BOTTOM,
+            borderRadius: 10,
+            borderWidth: 2,
+          );
+        }
+        Get.snackbar(
+          "Can,t Submit",
+          "Because their is not any task Available for today",
+          colorText: Colors.white,
+          backgroundColor: Colors.grey,
+          snackPosition: SnackPosition.BOTTOM,
+          borderRadius: 10,
+          borderWidth: 2,
+        );
+      }
+    } else {
+      Get.snackbar(
+        "Something went wrong",
+        "",
+        colorText: Colors.white,
+        backgroundColor: Colors.grey,
+        snackPosition: SnackPosition.BOTTOM,
+        borderRadius: 10,
+        borderWidth: 2,
+      );
+    }
+  }
+
+  File? image;
+  bool isimagepick = false;
+
+  final _picker = ImagePicker();
+  Future getimage() async {
+    final pickedfile = await _picker.pickImage(source: ImageSource.camera);
+    if (pickedfile != null) {
+      setState(() {
+        image = File(pickedfile.path);
+        isimagepick = true;
+        submit = true;
+      });
+    } else {
+      print("Not any image is selected");
+    }
+  }
+
+  bool isLoadSubmit = false;
+  bool imagesubmit = false;
+  submitUniform() async {
+    setState(() {
+      isLoadSubmit = true;
+    });
+    var token = Usererdatalist.usertoken;
+    Map<String, String> headers = {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    // ignore: unnecessary_new
+    final multipartRequest = new http.MultipartRequest(
+        "POST",
+        Uri.parse(
+            "https://thepointsystemapp.com/employee/public/api/employee/uniformCheck"));
+    multipartRequest.headers.addAll(headers);
+
+    multipartRequest.fields.addAll({});
+
+    multipartRequest.files.add(await http.MultipartFile.fromPath(
+      'image',
+      image!.path,
+    ));
+    http.StreamedResponse response = await multipartRequest.send();
+
+    var responseString = await response.stream.bytesToString();
+
+    if (response.statusCode == 200) {
+      setState(() {
+        isLoadSubmit = false;
+        image = null;
+        submit = false;
+        imagesubmit = true;
+      });
+      print("Done");
+
+      Get.snackbar(
+        "Submit Successfully",
+        "",
+        colorText: Colors.white,
+        backgroundColor: Colors.grey,
+        snackPosition: SnackPosition.BOTTOM,
+        borderRadius: 10,
+        borderWidth: 2,
+      );
+
+      print(responseString);
+    } else {
+      setState(() {
+        isLoadSubmit = false;
+        image == null;
+        submit = false;
+      });
+      Get.snackbar(
+        "Something went wrong",
+        "",
+        colorText: Colors.white,
+        backgroundColor: Colors.grey,
+        snackPosition: SnackPosition.BOTTOM,
+        borderRadius: 10,
+        borderWidth: 2,
+      );
     }
   }
 
@@ -189,18 +311,21 @@ class _ProfileState extends State<Profile> {
                 child: Column(
                   children: [
                     Expanded(
-                      flex: 5,
+                      flex: 4,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          GestureDetector(
-                            child: MyText(
-                              paddingLeft: 20.0,
-                              paddingBottom: 15.0,
-                              text: 'Daily Uniform Check',
-                              size: 18,
-                              weight: FontWeight.w700,
+                          Padding(
+                            padding: const EdgeInsets.only(top: 120),
+                            child: GestureDetector(
+                              child: MyText(
+                                paddingLeft: 20.0,
+                                paddingBottom: 15.0,
+                                text: 'Daily Uniform Check',
+                                size: 18,
+                                weight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -213,28 +338,78 @@ class _ProfileState extends State<Profile> {
 
                     // check
 
-                    // Expanded(
-                    //   flex: 9,
-                    //   child: GetBuilder<ProfileContr oller>(
-                    //     init: ProfileController(),
-                    //     builder: (controller) {
-                    //       return ListView.builder(
-                    //         physics: const BouncingScrollPhysics(),
-                    //         itemCount: controller.getProfileModel.length,
-                    //         itemBuilder: (context, index) {
-                    //           var data = controller.getProfileModel[index];
-                    //           return ProfileTiles(
-                    //             date: data.date,
-                    //             status: data.status,
-                    //             verified: data.verified,
-                    //             notVerified: data.notVerified,
-                    //             warning: data.warning,
-                    //           );
-                    //         },
-                    //       );
-                    //     },
-                    //   ),
-                    // ),
+                    Expanded(
+                      flex: 9,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(
+                                left: 20, right: 20, bottom: 20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(9),
+                              border: Border.all(color: kGreenColor),
+                            ),
+                            child: ListTile(
+                                minVerticalPadding: 20,
+                                minLeadingWidth: 30,
+                                leading: SizedBox(
+                                  height: 35,
+                                  width: 35,
+                                  child: image == null
+                                      ? Image.asset(
+                                          "assets/images/pic.png",
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.file(
+                                          File(image!.path).absolute,
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                                title: Text(
+                                  "Submit Your uniform check",
+                                ),
+                                trailing: imagesubmit
+                                    ? Image.asset(
+                                        "assets/images/Vector (8).png",
+                                        height: 20,
+                                      )
+                                    : isLoadSubmit
+                                        ? Container(
+                                            child: CircularProgressIndicator(
+                                            color: kSecondaryColor,
+                                          ))
+                                        : submit
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  print("click submit");
+                                                  submitUniform();
+                                                },
+                                                child: Icon(
+                                                  Icons.send,
+                                                  color: kSecondaryColor,
+                                                ))
+                                            : GestureDetector(
+                                                onTap: () {
+                                                  checkDailyuniform();
+                                                },
+                                                child: Image.asset(
+                                                  'assets/images/Vector (7).png',
+                                                  height: 24,
+                                                  width: 24,
+                                                ),
+                                              )
+                                // : TextButton(
+                                //     onPressed: () {
+                                //       // uploadImage(index);
+                                //     },
+                                //     child: Text("Submit"),
+                                //   ),
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -357,15 +532,13 @@ class _ProfileState extends State<Profile> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // DONE?
-                                //G bhai Ok Take care bro!
-
                                 Obx(() {
                                   return Text(
                                       loginCotroller.taskcount.value.toString(),
-                                      style: TextStyle(fontSize: 34));
+                                      style: TextStyle(
+                                          color: kSecondaryColor,
+                                          fontSize: 34));
                                 }),
-
                                 const SizedBox(
                                   width: 20,
                                 ),

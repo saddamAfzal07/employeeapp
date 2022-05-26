@@ -202,7 +202,11 @@ class _TasksState extends State<Tasks> {
   }
 
   bool imagesubmit = false;
+  bool isLoadSubmit = false;
   uploadImage(int index) async {
+    setState(() {
+      isLoadSubmit = true;
+    });
     print("call image submit");
     print(category[index].image);
     print(category[index].id);
@@ -238,6 +242,7 @@ class _TasksState extends State<Tasks> {
     if (response.statusCode == 200) {
       setState(() {
         imagesubmit = true;
+        isLoadSubmit = false;
       });
       print("Done");
       // Scaffold.of(context)
@@ -738,58 +743,69 @@ class _TasksState extends State<Tasks> {
                                     left: 20, right: 20, bottom: 15),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(9),
-                                  border: Border.all(color: kGreenColor),
+                                  border: Border.all(color: kSecondaryColor),
                                 ),
                                 child: ListTile(
-                                  leading: Container(
-                                    alignment: Alignment.centerLeft,
-                                    margin: EdgeInsets.only(bottom: 10),
-                                    height: 60,
-                                    width: 60,
-                                    // color: Colors.green,
-                                    child: category[index].image == null
-                                        ? Image.network(
-                                            'https://static.thenounproject.com/png/2413564-200.png',
-                                            // fit: BoxFit.cover,
-                                            height: 30,
-                                            width: 30,
-                                          )
-                                        : Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 4),
-                                            child: Image.file(
-                                              File(category[index].image!.path)
-                                                  .absolute,
+                                    minLeadingWidth: 10,
+                                    // minVerticalPadding: 20,
+                                    leading: Container(
+                                      alignment: Alignment.centerLeft,
+                                      // margin: EdgeInsets.only(bottom: 10),
+                                      height: 40,
+                                      width: 40,
+                                      // color: Colors.green,
+                                      child: category[index].image == null
+                                          ? Image.asset(
+                                              "assets/images/pic.png",
                                               fit: BoxFit.cover,
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 4),
+                                              child: Image.file(
+                                                File(category[index]
+                                                        .image!
+                                                        .path)
+                                                    .absolute,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
-                                          ),
-                                  ),
-                                  title: Text(category[index]
-                                      .task![0]
-                                      .taskTitle
-                                      .toString()),
-                                  subtitle: Text(category[index]
-                                      .task![0]
-                                      .taskDescription
-                                      .toString()),
-                                  trailing: category[index].image == null
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            getimage(index);
-                                          },
-                                          child: Image.asset(
-                                            'assets/images/Vector (7).png',
-                                            height: 24,
-                                            width: 24,
-                                          ),
-                                        )
-                                      : TextButton(
-                                          onPressed: () {
-                                            uploadImage(index);
-                                          },
-                                          child: Text("Submit"),
-                                        ),
-                                ),
+                                    ),
+                                    title: Text(category[index]
+                                        .task![0]
+                                        .taskTitle
+                                        .toString()),
+                                    subtitle: Text(category[index]
+                                        .task![0]
+                                        .taskDescription
+                                        .toString()),
+                                    trailing: category[index].image == null
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              getimage(index);
+                                            },
+                                            child: Image.asset(
+                                              'assets/images/Vector (7).png',
+                                              height: 24,
+                                              width: 24,
+                                            ),
+                                          )
+                                        : isLoadSubmit
+                                            ? Container(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                color: kSecondaryColor,
+                                              ))
+                                            : GestureDetector(
+                                                onTap: () {
+                                                  print("click submit");
+                                                  uploadImage(index);
+                                                },
+                                                child: Icon(
+                                                  Icons.send,
+                                                  color: kSecondaryColor,
+                                                ))),
                               );
                             })),
           ),

@@ -25,9 +25,7 @@ class _EnterEmailState extends State<EnterEmail> {
   String? email;
 
   enterMail() async {
-    setState(() {
-      bool isloading = false;
-    });
+    print("Enter Email");
     var response = await http.post(
         Uri.parse(
             "https://thepointsystemapp.com/employee/public/api/employee/email/verify"),
@@ -38,6 +36,7 @@ class _EnterEmailState extends State<EnterEmail> {
       setState(() {
         bool isloading = true;
       });
+      print(isloading);
       Map<String, dynamic> responsedata = jsonDecode(response.body);
 
       // Another method
