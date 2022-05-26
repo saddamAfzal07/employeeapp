@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:employeeapp/controller/notifications/notification_controller.dart';
 import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
 import 'package:employeeapp/view/constant/constant.dart';
+import 'package:employeeapp/view/profile/profile.dart';
 import 'package:employeeapp/view/widget/my_app_bar.dart';
 import 'package:employeeapp/view/widget/my_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import '../../model/notifications_model/notifications_model.dart';
 
@@ -25,6 +26,10 @@ class _NotificationsState extends State<Notifications> {
   bool notext = false;
   fetchapi() async {
     setState(() {
+      marktext = false;
+    });
+    notification = [];
+    setState(() {
       isloadingwaiting = true;
     });
     // setState(() {
@@ -33,8 +38,7 @@ class _NotificationsState extends State<Notifications> {
 
     // });
     var response = await http.get(
-      Uri.parse(
-          "https://thepointsystemapp.com/employee/public/api/all/notifications"),
+      Uri.parse("${Api.baseurl}all/notifications"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -75,10 +79,31 @@ class _NotificationsState extends State<Notifications> {
     }
   }
 
+  bool marktext = false;
+  markAllRead() async {
+    setState(() {
+      marktext = true;
+    });
+    var response = await http.get(
+      Uri.parse("${Api.baseurl}mark/all/notifications/as/read"),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    Map data = jsonDecode(response.body);
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      fetchapi();
+    } else {}
+  }
+
   @override
   void initState() {
-    // fetchapi();
-    controller.fetchapi();
+    fetchapi();
+    // controller.fetchapi();
     super.initState();
   }
 
@@ -88,8 +113,7 @@ class _NotificationsState extends State<Notifications> {
     };
 
     http.Response response = await http.post(
-      Uri.parse(
-          "https://thepointsystemapp.com/employee/public/api/mark/specific/notification/as/read"),
+      Uri.parse("${Api.baseurl}mark/specific/notification/as/read"),
       body: jsonEncode(bodyy),
       headers: {
         'Content-type': 'application/json',
@@ -104,14 +128,16 @@ class _NotificationsState extends State<Notifications> {
     } else {}
   }
 
-  NotificationController controller = Get.put(NotificationController());
+  String noti = "change";
 
+  int? currentindex;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => Get.back(),
+          onPressed: () => Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => Profile())),
           icon: Image.asset(
             'assets/images/Vector (11).png',
             height: 18,
@@ -129,14 +155,28 @@ class _NotificationsState extends State<Notifications> {
             const SizedBox(
               width: 10,
             ),
-            MyText(
-              text: "2",
-              size: 20,
-              color: kSecondaryColor,
-              weight: FontWeight.w700,
-            ),
           ],
         ),
+        actions: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: GestureDetector(
+                  onTap: () {
+                    markAllRead();
+                  },
+                  child: MyText(
+                    text: "Mark All",
+                    size: 16,
+                    color: marktext ? kGreyColor : kSecondaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
         automaticallyImplyLeading: false,
         centerTitle: false,
       ),
@@ -146,15 +186,18 @@ class _NotificationsState extends State<Notifications> {
                 color: kSecondaryColor,
               ),
             )
-          :
-
-          //   Obx(
-          // () =>
-          ListView.builder(
-              itemCount: controller.notification.length,
+          : ListView.builder(
+              itemCount: notification.length,
               itemBuilder: ((context, index) {
+                var date = DateFormat("dd-MM-yyyy").format(
+                    DateTime.parse(notification[index].createdAt.toString()));
+
                 return GestureDetector(
                   onTap: () {
+                    setState(() {
+                      notification[index].conColor = noti;
+                    });
+
                     notificationUpload(notification[index].id.toString());
                   },
                   child: Container(
@@ -163,73 +206,40 @@ class _NotificationsState extends State<Notifications> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(9),
                         border: Border.all(
-                            color: notification[index].markAsRead == "1"
-                                ? kGreenColor
-                                : kSecondaryColor),
+                            color: notification[index].conColor == "change"
+                                ? kGreyColor
+                                : notification[index].markAsRead == "1"
+                                    ? kGreyColor
+                                    : kSecondaryColor),
                       ),
                       child: ListTile(
                         minVerticalPadding: 20,
                         minLeadingWidth: 30,
                         title: Padding(
                           padding: const EdgeInsets.only(bottom: 6.0),
-                          child: Text(controller
-                              .notification[index].notificationText
-                              .toString()),
+                          child: Text(
+                              notification[index].notificationText.toString()),
                         ),
                         subtitle: Text(
-                          notification[index].createdAt.toString().substring(0,
-                              min(notification[index].createdAt!.length, 10)),
+                          date.substring(0, min(date.length, 10)),
                         ),
+                        trailing: notification[index].conColor == "change"
+                            ? Image.asset(
+                                'assets/images/Vector (8).png',
+                                height: 24,
+                                width: 24,
+                              )
+                            : notification[index].markAsRead == "1"
+                                ? Image.asset(
+                                    'assets/images/Vector (8).png',
+                                    height: 24,
+                                    width: 24,
+                                  )
+                                : Text(""),
                       )),
                 );
               })),
       // )
-    );
-  }
-}
-
-class NotificationsTiles extends StatelessWidget {
-  bool? warning;
-  var notifyText, time;
-
-  NotificationsTiles({
-    this.notifyText,
-    this.time,
-    this.warning = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: warning == true ? kTertiaryColor : kInputBorderColor,
-        ),
-      ),
-      child: ListTile(
-        leading: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              warning == true
-                  ? 'assets/images/Vector (9).png'
-                  : 'assets/images/Vector (10).png',
-              height: 20,
-            ),
-          ],
-        ),
-        title: MyText(
-          text: '$notifyText',
-          size: 14,
-        ),
-        subtitle: MyText(
-          text: '$time',
-          size: 14,
-          color: kBlackColor.withOpacity(0.6),
-        ),
-      ),
     );
   }
 }
