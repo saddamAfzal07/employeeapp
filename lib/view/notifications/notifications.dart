@@ -4,13 +4,10 @@ import 'dart:math';
 import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
 import 'package:employeeapp/view/constant/constant.dart';
 import 'package:employeeapp/view/profile/profile.dart';
-import 'package:employeeapp/view/widget/my_app_bar.dart';
 import 'package:employeeapp/view/widget/my_text.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-
 import '../../model/notifications_model/notifications_model.dart';
 
 class Notifications extends StatefulWidget {
@@ -70,7 +67,6 @@ class _NotificationsState extends State<Notifications> {
         isloadingwaiting = false;
       });
 
-      // shift();
 
     } else {
       setState(() {
@@ -187,6 +183,7 @@ class _NotificationsState extends State<Notifications> {
               ),
             )
           : ListView.builder(
+            
               itemCount: notification.length,
               itemBuilder: ((context, index) {
                 var date = DateFormat("dd-MM-yyyy").format(

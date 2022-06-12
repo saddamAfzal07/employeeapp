@@ -169,9 +169,6 @@ class _TasksState extends State<Tasks> {
     super.dispose();
   }
 
-  late StreamController _streamController;
-  late Stream _stream;
-
   var initial = 0;
   // File? image;
   var pick;
@@ -401,6 +398,44 @@ class _TasksState extends State<Tasks> {
         isloadingcomplete = false;
       });
     }
+  }
+
+  String circular = "true";
+  withOutPic(int index) async {
+    final bodyy = {
+      'assigned_task_specific_id': category[index].id.toString(),
+      'image': Usererdatalist.userid,
+    };
+    print(bodyy);
+
+    http.Response response = await http.post(
+      Uri.parse("${Api.baseurl}task/assigned-submit"),
+      body: jsonEncode(bodyy),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
+    // var data = jsonDecode(response.body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      print("upload");
+
+      Get.snackbar(
+        "Task submit Successfully",
+        "",
+        colorText: Colors.white,
+        backgroundColor: Colors.blue,
+        snackPosition: SnackPosition.BOTTOM,
+        borderRadius: 10,
+        borderWidth: 2,
+      );
+
+      apirecall();
+    } else {}
+
+    //     // ignore: avoid_single_cascade_in_expression_statements
   }
 
   @override
@@ -732,72 +767,104 @@ class _TasksState extends State<Tasks> {
                             itemBuilder: (context, index) {
                               return Container(
                                 margin: const EdgeInsets.only(
-                                    left: 20, right: 20, bottom: 15),
+                                  left: 20,
+                                  right: 20,
+                                  bottom: 15,
+                                ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(9),
                                   border: Border.all(color: kSecondaryColor),
                                 ),
-                                child: ListTile(
-                                    minLeadingWidth: 10,
-                                    // minVerticalPadding: 20,
-                                    leading: Container(
-                                      alignment: Alignment.centerLeft,
-                                      // margin: EdgeInsets.only(bottom: 10),
-                                      height: 40,
-                                      width: 40,
-                                      // color: Colors.green,
-                                      child: category[index].image == null
-                                          ? Image.asset(
-                                              "assets/images/pic.png",
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 4),
-                                              child: Image.file(
-                                                File(category[index]
-                                                        .image!
-                                                        .path)
-                                                    .absolute,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                    ),
-                                    title: Text(category[index]
-                                        .task![0]
-                                        .taskTitle
-                                        .toString()),
-                                    subtitle: Text(category[index]
-                                        .task![0]
-                                        .taskDescription
-                                        .toString()),
-                                    trailing: category[index].image == null
-                                        ? GestureDetector(
-                                            onTap: () {
-                                              getimage(index);
-                                            },
-                                            child: Image.asset(
-                                              'assets/images/Vector (7).png',
-                                              height: 24,
-                                              width: 24,
-                                            ),
-                                          )
-                                        : isLoadSubmit
+                                child: category[index].task![0].imageRequired ==
+                                        "0"
+                                    ? ListTile(
+                                        title: Text(category[index]
+                                            .task![0]
+                                            .taskTitle
+                                            .toString()),
+                                        subtitle: Text(category[index]
+                                            .task![0]
+                                            .taskDescription
+                                            .toString()),
+                                        trailing: category[index].load == "true"
                                             ? Container(
                                                 child:
-                                                    CircularProgressIndicator(
-                                                color: kSecondaryColor,
-                                              ))
+                                                    CircularProgressIndicator(),
+                                              )
                                             : GestureDetector(
                                                 onTap: () {
+                                                  setState(() {
+                                                    category[index].load =
+                                                        circular;
+                                                  });
                                                   print("click submit");
-                                                  uploadImage(index);
+                                                  withOutPic(index);
                                                 },
                                                 child: Icon(
                                                   Icons.send,
                                                   color: kSecondaryColor,
-                                                ))),
+                                                )),
+                                      )
+                                    : ListTile(
+                                        minLeadingWidth: 10,
+                                        // minVerticalPadding: 20,
+                                        leading: Container(
+                                          alignment: Alignment.centerLeft,
+                                          // margin: EdgeInsets.only(bottom: 10),
+                                          height: 40,
+                                          width: 40,
+                                          // color: Colors.green,
+                                          child: category[index].image == null
+                                              ? Image.asset(
+                                                  "assets/images/pic.png",
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 4),
+                                                  child: Image.file(
+                                                    File(category[index]
+                                                            .image!
+                                                            .path)
+                                                        .absolute,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                        ),
+                                        title: Text(category[index]
+                                            .task![0]
+                                            .taskTitle
+                                            .toString()),
+                                        subtitle: Text(category[index]
+                                            .task![0]
+                                            .taskDescription
+                                            .toString()),
+                                        trailing: category[index].image == null
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  getimage(index);
+                                                },
+                                                child: Image.asset(
+                                                  'assets/images/Vector (7).png',
+                                                  height: 24,
+                                                  width: 24,
+                                                ),
+                                              )
+                                            : isLoadSubmit
+                                                ? Container(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                    color: kSecondaryColor,
+                                                  ))
+                                                : GestureDetector(
+                                                    onTap: () {
+                                                      print("click submit");
+                                                      uploadImage(index);
+                                                    },
+                                                    child: Icon(
+                                                      Icons.send,
+                                                      color: kSecondaryColor,
+                                                    ))),
                               );
                             })),
           ),

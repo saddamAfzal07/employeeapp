@@ -27,6 +27,13 @@ dependencies:
   onesignal_flutter: ^3.3.0
   pin_code_text_field: ^1.8.0
   cached_network_image: any
+ 
+  flutter_launcher_icons: "^0.9.2"
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/iconpng.png"
 
 
 dev_dependencies:

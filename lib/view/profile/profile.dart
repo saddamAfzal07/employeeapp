@@ -152,8 +152,8 @@ class _ProfileState extends State<Profile> {
           );
         }
         Get.snackbar(
-          "Can,t Submit",
-          "Because their is not any task Available for today",
+          "Can't Submit",
+          "Because their is not any task available for today",
           colorText: Colors.white,
           backgroundColor: Colors.grey,
           snackPosition: SnackPosition.BOTTOM,

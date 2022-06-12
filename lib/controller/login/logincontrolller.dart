@@ -26,8 +26,6 @@ class LoginController extends GetxController {
   RxString previousmonthppoints = ''.obs;
 
   Loginwithdetails(String email, String password) async {
-    print("-------iiiii");
-    print(Api.baseurl);
     isdatasubmit.value = true;
 
     var response = await http.post(Uri.parse("${Api.baseurl}employeelogin"),
@@ -52,54 +50,19 @@ class LoginController extends GetxController {
     } else {
       isdatasubmit.value = false;
 
-      Get.snackbar(
-        "Login Failed",
-        "Email or password is invalid",
-        colorText: Colors.white,
-        backgroundColor: Colors.grey,
-        snackPosition: SnackPosition.BOTTOM,
-        borderRadius: 10,
-        borderWidth: 2,
-      );
+      // Get.snackbar(
+      //   "Login Failed",
+      //   "Email or password is invalid",
+      //   colorText: Colors.white,
+      //   backgroundColor: Colors.grey,
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   borderRadius: 10,
+      //   borderWidth: 2,
+      // );
     }
   }
 
-  // void Tasks(
-  //   DateTime date,
-  //   String id,
-  // ) async {
-  //   // print(id);
-  //   // print(date);
-  //   // isdatasubmit.value = true;
-  //   var token = Usererdatalist.usertoken;
-
-  //   var url =
-  //       "https://thepointsystemapp.com/employee/public/api/employee/dailyTask";
-
-  //   var response = await http.post(Uri.parse(url), headers: {
-  //     'Authorization': 'Bearer $token',
-  //   }, body: {
-  //     'date': date.toString(),
-  //     'employee_id': id,
-  //   });
-  //   // print(id);
-  //   // print(date);
-
-  //   if (response.statusCode == 200) {
-  //     showtasks.value = true;
-  //     Map<String, dynamic> responsedata = jsonDecode(response.body);
-
-  //     // print("check=>");
-  //     print(responsedata);
-  //     // print(responsedata["count"]);
-  //     taskcount.value = responsedata["count"].toString();
-  //     uncomplete.value = responsedata["unCompletedCount"].toString();
-  //     complete.value = responsedata["completedCount"].toString();
-  //     pending.value = responsedata["pedningApprovalCount"].toString();
-  //   } else {}
-  // }
   attendaceEmploye() async {
-    print("startt");
     var token = Usererdatalist.usertoken;
 
     var url = "${Api.baseurl}current/year/points";
@@ -107,7 +70,7 @@ class LoginController extends GetxController {
     var response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token',
     });
-    // print(response.body);
+
     Map<String, dynamic> responsedata = jsonDecode(response.body);
     if (response.statusCode == 200) {
       if (responsedata["error"] == "No Points Found") {
@@ -120,22 +83,14 @@ class LoginController extends GetxController {
         previousmonthppoints.value =
             responsedata["previous_month_count"].toString();
       }
-
-      print("get response");
-
-      // print("check=>");
-      // print(responsedata);
-
     } else {
       yearpoints.value = 0.toString();
       monthpoints.value = 0.toString();
       previousmonthppoints.value = 0.toString();
-      print("not response");
     }
   }
 
   employeTaskCount() async {
-    print("taskcount");
     var token = Usererdatalist.usertoken;
 
     var url = "${Api.baseurl}task/counts";
@@ -143,20 +98,14 @@ class LoginController extends GetxController {
     var response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token',
     });
-    // print(response.body);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responsedata = jsonDecode(response.body);
-
-      // print("check=>");
-      // print(responsedata);
 
       taskcount.value = responsedata["daily_task_count"].toString();
       uncomplete.value = responsedata["rejected_task_count"].toString();
       complete.value = responsedata["completed_task_count"].toString();
       pending.value = responsedata["pending_task_count"].toString();
-    } else {
-      print("not response");
-    }
+    } else {}
   }
 }
