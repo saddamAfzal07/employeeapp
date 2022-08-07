@@ -33,7 +33,7 @@ dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/iconpng.png"
+  image_path: "assets/images/app.png"
 
 
 dev_dependencies:

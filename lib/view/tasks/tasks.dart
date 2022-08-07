@@ -123,9 +123,11 @@ class _TasksState extends State<Tasks> {
       // shift();
 
     } else {
-      setState(() {
-        isloadingwaiting = false;
-      });
+      if (mounted) {
+        setState(() {
+          isloadingwaiting = false;
+        });
+      }
     }
   }
 
@@ -468,14 +470,6 @@ class _TasksState extends State<Tasks> {
                 Icons.refresh,
                 color: Colors.blue,
               )),
-          // Center(
-          //   child: MyText(
-          //     text: '2',
-          //     size: 18,
-          //     weight: FontWeight.w700,
-          //     color: kSecondaryColor,
-          //   ),
-          // ),
           const SizedBox(
             width: 12.0,
           ),

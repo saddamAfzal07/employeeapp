@@ -2,12 +2,8 @@
 
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
-import 'package:employeeapp/model/Loginmodel/loginmodel.dart';
 import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
 import 'package:employeeapp/view/profile/profile.dart';
-import 'package:flutter/material.dart';
-import 'package:get/state_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 

@@ -136,34 +136,35 @@ class _ProfileState extends State<Profile> {
     if (response.statusCode == 200) {
       if (data["show_uniform_check"] == true &&
           data["uniform_check_submitted"] == false) {
-        print(" Task Found");
-
         getimage();
       } else {
         if (data["uniform_check_submitted"] == true) {
+          print("get attendance");
           Get.snackbar(
-            "Attendance Already Submit",
+            "You have already submitted your daily uniform check.",
             "",
             colorText: Colors.white,
-            backgroundColor: Color(0xffbb33),
+            backgroundColor: Colors.yellow.shade700,
             snackPosition: SnackPosition.BOTTOM,
             borderRadius: 10,
             borderWidth: 2,
           );
         }
-        Get.snackbar(
-          "Can't Submit",
-          "Because their is not any task available for today",
-          colorText: Colors.white,
-          backgroundColor: Colors.grey,
-          snackPosition: SnackPosition.BOTTOM,
-          borderRadius: 10,
-          borderWidth: 2,
-        );
+        if (data["no_daily_task_exsist"] == true) {
+          Get.snackbar(
+            "Can't Submit",
+            "Because there is not any task available for today.",
+            colorText: Colors.white,
+            backgroundColor: Colors.red.shade600,
+            snackPosition: SnackPosition.BOTTOM,
+            borderRadius: 10,
+            borderWidth: 2,
+          );
+        }
       }
     } else {
       Get.snackbar(
-        "Something went wrong",
+        "Something went wrong.",
         "",
         colorText: Colors.white,
         backgroundColor: Colors.grey,
@@ -266,7 +267,8 @@ class _ProfileState extends State<Profile> {
     notificationCount();
     attendanceCall();
 
-    // timer = Timer.periodic(Duration(seconds: 2), (Timer t) => attendanceCall());
+    timer = Timer.periodic(
+        Duration(seconds: 2), (Timer t) => controller.employeTaskCount());
     initPlatform();
   }
 
@@ -367,13 +369,6 @@ class _ProfileState extends State<Profile> {
                         ],
                       ),
                     ),
-
-                    // check
-
-                    // Expanded(flex: 2, child: checkimage()),
-
-                    // check
-
                     Expanded(
                       flex: 9,
                       child: Column(

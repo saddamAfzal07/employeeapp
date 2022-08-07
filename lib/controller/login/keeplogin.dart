@@ -18,16 +18,6 @@ class keeplogin extends GetxController {
 
       usernamme = logindataa.getString("username")!;
       pass = logindataa.getString("password")!;
-
-      // nameu = logindata.getString("name")!;
-      // fullname = logindata.getString("fullname")!;
-      // id = logindata.getString("id")!;
-      // userimage = logindata.getString("image1")!;
-
-      // controller.Loginwithdetails(usernamme, pass);
-
-      // Get.offAll(() => Profile());
-      // print(newuser);
     }
   }
 }
