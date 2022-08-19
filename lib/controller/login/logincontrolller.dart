@@ -21,7 +21,7 @@ class LoginController extends GetxController {
   RxString monthpoints = ''.obs;
   RxString previousmonthppoints = ''.obs;
 
-  Loginwithdetails(String email, String password) async {
+  loginwithdetails(String email, String password) async {
     isdatasubmit.value = true;
 
     var response = await http.post(Uri.parse("${Api.baseurl}employeelogin"),
@@ -45,16 +45,6 @@ class LoginController extends GetxController {
       isdatareading.value = true;
     } else {
       isdatasubmit.value = false;
-
-      // Get.snackbar(
-      //   "Login Failed",
-      //   "Email or password is invalid",
-      //   colorText: Colors.white,
-      //   backgroundColor: Colors.grey,
-      //   snackPosition: SnackPosition.BOTTOM,
-      //   borderRadius: 10,
-      //   borderWidth: 2,
-      // );
     }
   }
 

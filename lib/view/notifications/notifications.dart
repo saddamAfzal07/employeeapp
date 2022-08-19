@@ -29,11 +29,7 @@ class _NotificationsState extends State<Notifications> {
     setState(() {
       isloadingwaiting = true;
     });
-    // setState(() {
-    //   var date = selecteddate.toString().substring(
-    //                               0, selecteddate.length, 10)),
 
-    // });
     var response = await http.get(
       Uri.parse("${Api.baseurl}all/notifications"),
       headers: {
@@ -43,7 +39,6 @@ class _NotificationsState extends State<Notifications> {
     );
 
     Map data = jsonDecode(response.body);
-    print(response.body);
 
     if (response.statusCode == 200) {
       if (data["notifications"].isEmpty) {
@@ -66,8 +61,6 @@ class _NotificationsState extends State<Notifications> {
       setState(() {
         isloadingwaiting = false;
       });
-
-
     } else {
       setState(() {
         isloadingwaiting = false;
@@ -99,7 +92,6 @@ class _NotificationsState extends State<Notifications> {
   @override
   void initState() {
     fetchapi();
-    // controller.fetchapi();
     super.initState();
   }
 
@@ -117,7 +109,6 @@ class _NotificationsState extends State<Notifications> {
       },
     );
 
-    // var data = jsonDecode(response.body);
     print(response.body);
     if (response.statusCode == 200) {
       print("updated response");
@@ -183,7 +174,6 @@ class _NotificationsState extends State<Notifications> {
               ),
             )
           : ListView.builder(
-            
               itemCount: notification.length,
               itemBuilder: ((context, index) {
                 var date = DateFormat("dd-MM-yyyy").format(

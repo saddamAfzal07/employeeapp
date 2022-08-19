@@ -2,14 +2,9 @@ import 'dart:convert';
 
 import 'package:employeeapp/resetpass_screen/confirm_password.dart';
 import 'package:employeeapp/view/constant/constant.dart';
-import 'package:employeeapp/view/widget/my_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:pin_code_text_field/pin_code_text_field.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,8 +24,7 @@ class _EnterotpState extends State<Enterotp> {
       isLoading = true;
     });
     var response = await http.post(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/verify/otp"),
+        Uri.parse("https://thepointsystemapp.com/api/employee/verify/otp"),
         body: {'email': widget.email, 'otp': controller.text});
 
     if (response.statusCode == 200) {
@@ -111,7 +105,7 @@ class _EnterotpState extends State<Enterotp> {
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -127,14 +121,10 @@ class _EnterotpState extends State<Enterotp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       PinCodeTextField(
-                        // autofocus: true,
                         controller: controller,
-                        // hideCharacter: true,
-                        // highlight: true,
+
                         highlightColor: Colors.blue,
-                        // defaultBorderColor: Colors.black,
-                        // hasTextBorderColor: Colors.green,
-                        // highlightPinBoxColor: Colors.orange,
+
                         maxLength: pinLength,
                         hasError: hasError,
 
@@ -143,10 +133,7 @@ class _EnterotpState extends State<Enterotp> {
                             hasError = false;
                           });
                         },
-                        onDone: (text) {
-                          print("DONE $text");
-                          print("DONE CONTROLLER ${controller.text}");
-                        },
+                        onDone: (text) {},
                         pinBoxWidth: 50,
                         pinBoxHeight: 64,
                         hasUnderline: true,
@@ -168,7 +155,7 @@ class _EnterotpState extends State<Enterotp> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 17),
+                        vertical: 30, horizontal: 30),
                     child: isLoading
                         ? CircularProgressIndicator()
                         : GestureDetector(

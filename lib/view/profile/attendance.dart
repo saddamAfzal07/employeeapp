@@ -41,11 +41,6 @@ class _AttendanceState extends State<Attendance> {
           notext = true;
         });
       } else {
-        print("Compeleted Task Found");
-        // setState(() {
-        //   notext = false;
-        // });
-
         for (int i = 0; i < data["this_year"].length; i++) {
           Map obj = data["this_year"][i];
           ThisYear pos = ThisYear();
@@ -85,11 +80,6 @@ class _AttendanceState extends State<Attendance> {
           notextmonth = true;
         });
       } else {
-        print("Compeleted Task Found");
-        // setState(() {
-        //   notext = false;
-        // });
-
         for (int i = 0; i < data["this_month"].length; i++) {
           Map obj = data["this_month"][i];
           ThisMonth pos = ThisMonth();
@@ -129,11 +119,6 @@ class _AttendanceState extends State<Attendance> {
           notextpreviousmonth = true;
         });
       } else {
-        print("Compeleted Task Found");
-        // setState(() {
-        //   notext = false;
-        // });
-
         for (int i = 0; i < data["previous_month"].length; i++) {
           Map obj = data["previous_month"][i];
           PreviousMonth pos = PreviousMonth();

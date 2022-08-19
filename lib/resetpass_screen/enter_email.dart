@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:employeeapp/resetpass_screen/enter_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:employeeapp/view/constant/constant.dart';
-import 'package:employeeapp/view/splash_screen/splash_screen.dart';
 import 'package:employeeapp/view/widget/my_button.dart';
 
 import 'package:get/get.dart';
@@ -25,23 +24,20 @@ class _EnterEmailState extends State<EnterEmail> {
   String? email;
 
   enterMail() async {
-    print("Enter Email");
     var response = await http.post(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/email/verify"),
+        Uri.parse("https://thepointsystemapp.com/api/employee/email/verify"),
         body: {
           'email': emailcontroller.text,
         });
     if (response.statusCode == 200) {
       setState(() {
-        bool isloading = true;
+        isloading = true;
       });
       print(isloading);
       Map<String, dynamic> responsedata = jsonDecode(response.body);
 
       // Another method
       email = responsedata["data"]["email"];
-      print(email);
 
       Navigator.pushReplacement(
           context,
@@ -73,8 +69,6 @@ class _EnterEmailState extends State<EnterEmail> {
         print(isloading);
       });
       enterMail();
-
-      // Get.offAll(() => Profile());
     } else {}
   }
 
@@ -185,10 +179,6 @@ class _EnterEmailState extends State<EnterEmail> {
                       ? MyButton(
                           onPressed: () {
                             sendOtp();
-                            // Navigator.push(context,
-                            //     MaterialPageRoute(builder: (context) => Enterotp()));
-                            // Login();
-                            // check();
                           },
                           text: 'Send  OTP',
                           textSize: 18,
@@ -197,19 +187,6 @@ class _EnterEmailState extends State<EnterEmail> {
                           child: CircularProgressIndicator(
                           color: Colors.blue,
                         ))
-
-                  // Obx(
-                  //   () => controller.isdatasubmit.value == false
-                  //       ? MyButton(
-                  //           onPressed: () {
-                  //             // Login();
-                  //             check();
-                  //           },
-                  //           text: 'Login',
-                  //           textSize: 18,
-                  //         )
-                  //       : Center(child: CircularProgressIndicator()),
-                  // )
                 ],
               ),
             ),

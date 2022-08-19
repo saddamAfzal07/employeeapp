@@ -27,8 +27,7 @@ class _ConfirmPasswordState extends State<ConfirmPassword> {
       isLoaading = true;
     });
     var response = await http.post(
-        Uri.parse(
-            "https://thepointsystemapp.com/employee/public/api/employee/password/update"),
+        Uri.parse("https://thepointsystemapp.com/api/employee/password/update"),
         body: {
           'user_id': widget.userid,
           'password': password.text,
@@ -83,16 +82,6 @@ class _ConfirmPasswordState extends State<ConfirmPassword> {
     }
   }
 
-  // String? passvalidation(value) {
-  //   if (value == null || value.isEmpty) {
-  //     return "password is required";
-  //   } else if (value.length > 15) {
-  //     return "password is too Long";
-  //   } else {
-  //     return null;
-  //   }
-  // }
-
   var labelColor;
   @override
   Widget build(BuildContext context) {
@@ -144,16 +133,6 @@ class _ConfirmPasswordState extends State<ConfirmPassword> {
                       child: TextFormField(
                         controller: password,
                         obscureText: true,
-                        // validator: (value) {
-                        //   if (value == null || value.isEmpty) {
-                        //     return "Password is required";
-                        //   }
-                        //   return null;
-                        // },
-                        // validator: MultiValidator([
-                        //   MinLengthValidator(6,
-                        //       errorText: "Password must be 6 characters")
-                        // ]),
                         validator: RequiredValidator(
                             errorText: 'Password is required'),
                         onTap: () {},
@@ -225,16 +204,6 @@ class _ConfirmPasswordState extends State<ConfirmPassword> {
                       child: TextFormField(
                         controller: confirmpass,
                         obscureText: true,
-                        // validator: (value) {
-                        //   if (value == null || value.isEmpty) {
-                        //     return "Password is required";
-                        //   }
-                        //   return null;
-                        // },
-                        // validator: MultiValidator([
-                        //   MinLengthValidator(6,
-                        //       errorText: "Password must be 6 characters")
-                        // ]),
                         validator: RequiredValidator(
                             errorText: 'Password is required'),
                         onTap: () {},
@@ -286,7 +255,7 @@ class _ConfirmPasswordState extends State<ConfirmPassword> {
                   ///////////////
 
                   isLoaading
-                      ? CircularProgressIndicator()
+                      ? Center(child: CircularProgressIndicator())
                       : MyButton(
                           onPressed: () {
                             passcheck();

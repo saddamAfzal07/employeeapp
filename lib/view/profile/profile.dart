@@ -10,29 +10,18 @@ import 'package:employeeapp/controller/login/logincontrolller.dart';
 
 import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
 
-import 'package:employeeapp/view/camera/camera.dart';
-import 'package:employeeapp/view/camera/daily_verify.dart';
 import 'package:employeeapp/view/constant/constant.dart';
 import 'package:employeeapp/view/notifications/notifications.dart';
 import 'package:employeeapp/view/profile/attendance.dart';
-import 'package:employeeapp/view/profile/profilrtile.dart';
-import 'package:employeeapp/view/tasks/tasks.dart';
 import 'package:employeeapp/view/tasks/tasks.dart';
 import 'package:employeeapp/view/widget/my_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:path/path.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Action;
 
-import 'package:eosdart_ecc/eosdart_ecc.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class Profile extends StatefulWidget {
@@ -47,8 +36,6 @@ class _ProfileState extends State<Profile> {
     controller.attendaceEmploye();
     controller.employeTaskCount();
     notificationCount();
-    print("==>");
-    print(controller.yearpoints);
   }
 
   LoginController controller = Get.put(LoginController());
@@ -68,21 +55,16 @@ class _ProfileState extends State<Profile> {
 
   String? tokensignal;
   Future<void> initPlatform() async {
-    print("enter");
-    await OneSignal.shared.setAppId("671b3c95-34db-4eef-b71d-b2fe54dc8edc");
+    await OneSignal.shared.setAppId("c1c8fbdd-e882-4b04-93ef-b91132e346ff");
     await OneSignal.shared.getDeviceState().then((value) => {
-          print("userid==>"),
-          print(value!.userId),
           setState(() {
-            tokensignal = value.userId;
+            tokensignal = value!.userId;
           }),
-          print("====>${tokensignal}"),
         });
     oneSignalToken();
   }
 
   oneSignalToken() async {
-    print("startt fun");
     var token = Usererdatalist.usertoken;
 
     var response = await http.post(
@@ -94,16 +76,11 @@ class _ProfileState extends State<Profile> {
     );
 
     if (response.statusCode == 200) {
-      print("token");
-      print(" response 200");
-    } else {
-      print("not response");
-    }
+    } else {}
   }
 
   String notification = "";
   notificationCount() async {
-    print("taskcount");
     var token = Usererdatalist.usertoken;
 
     var url = "${Api.baseurl}main/task/counts";
@@ -111,7 +88,6 @@ class _ProfileState extends State<Profile> {
     var response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token',
     });
-    // print(response.body);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responsedata = jsonDecode(response.body);
@@ -119,8 +95,6 @@ class _ProfileState extends State<Profile> {
       setState(() {
         notification = responsedata["unread_notification_count"].toString();
       });
-
-      print("not response");
     }
   }
 
@@ -139,7 +113,6 @@ class _ProfileState extends State<Profile> {
         getimage();
       } else {
         if (data["uniform_check_submitted"] == true) {
-          print("get attendance");
           Get.snackbar(
             "You have already submitted your daily uniform check.",
             "",
@@ -187,9 +160,7 @@ class _ProfileState extends State<Profile> {
         isimagepick = true;
         submit = true;
       });
-    } else {
-      print("Not any image is selected");
-    }
+    } else {}
   }
 
   bool isLoadSubmit = false;
@@ -259,8 +230,6 @@ class _ProfileState extends State<Profile> {
 
   @override
   void initState() {
-    print("0000000000");
-    print("back");
     super.initState();
     controller.attendaceEmploye();
     controller.employeTaskCount();
@@ -307,14 +276,6 @@ class _ProfileState extends State<Profile> {
                           errorWidget: (context, url, error) =>
                               Image.asset("assets/images/user.png"),
                         ),
-
-                        //     Image.network(
-                        //   "https://thepointsystemapp.com/" +
-                        //       Usererdatalist.image,
-                        //   height: 45,
-                        //   width: 45,
-                        //   fit: BoxFit.cover,
-                        // ),
                       ),
                     ),
                     title: MyText(
@@ -429,14 +390,7 @@ class _ProfileState extends State<Profile> {
                                                   height: 24,
                                                   width: 24,
                                                 ),
-                                              )
-                                // : TextButton(
-                                //     onPressed: () {
-                                //       // uploadImage(index);
-                                //     },
-                                //     child: Text("Submit"),
-                                //   ),
-                                ),
+                                              )),
                           ),
                         ],
                       ),
@@ -487,37 +441,15 @@ class _ProfileState extends State<Profile> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Obx(() {
-                                return
-                                    //  loginCotroller.yearpoints.value.isBool
-                                    //     ?
-                                    Text(
-                                  loginCotroller.yearpoints.value.toString(),
-                                  style: TextStyle(
-                                    fontSize: 36,
-                                    color: kTertiaryColor,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                );
-                                // : Center(
-                                //     child: Padding(
-                                //       padding: const EdgeInsets.all(12),
-                                //       child: CircularProgressIndicator(),
-
-                                //       //  Text(
-                                //       //   "Please wait",
-                                //       //   style: TextStyle(fontSize: 18),
-                                //       // ),
-                                //     ),
-                                //   );
-                              }),
-                              // MyText(
-                              //   text: '5',
-                              //   color: kTertiaryColor,
-                              //   weight: FontWeight.w500,
-                              //   size: 36,
-                              // ),
-                              const SizedBox(
+                              Text(
+                                loginCotroller.yearpoints.value.toString(),
+                                style: TextStyle(
+                                  fontSize: 36,
+                                  color: kTertiaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(
                                 width: 20,
                               ),
                               RotatedBox(
@@ -536,7 +468,6 @@ class _ProfileState extends State<Profile> {
                   ),
                   Expanded(
                     child: InkWell(
-                      // hoverColor: Colors.blue,
                       onTap: () => Get.to(() => Tasks()),
                       child: Container(
                         decoration: BoxDecoration(

@@ -16,10 +16,6 @@ class Personaldetail extends StatefulWidget {
 class _PersonaldetailState extends State<Personaldetail> {
   late SharedPreferences logindata;
   late String usernamme;
-  // late String nameu;
-  // late String fullname;
-  // late String id;
-  // late String userimage;
 
   void initstate() {
     initial();
@@ -29,11 +25,6 @@ class _PersonaldetailState extends State<Personaldetail> {
     logindata = await SharedPreferences.getInstance();
     setState(() {
       usernamme = logindata.getString("username")!;
-
-      // nameu = logindata.getString("name")!;
-      // fullname = logindata.getString("fullname")!;
-      // id = logindata.getString("id")!;
-      // userimage = logindata.getString("image1")!;
     });
   }
 
@@ -62,13 +53,11 @@ class _PersonaldetailState extends State<Personaldetail> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            // ignore: prefer_const_literals_to_create_immutables
-            children: [
+            children: const [
               Text(
                 "Employe Profile",
                 style: TextStyle(
                   fontSize: 34.0,
-                  // fontWeight: FontWeight.bold,
                   color: kSecondaryColor,
                 ),
               ),
@@ -97,8 +86,6 @@ class _PersonaldetailState extends State<Personaldetail> {
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade100,
                   ),
-
-                  // onPressed: () {},
                   child: Row(
                     children: [
                       Container(
@@ -112,7 +99,6 @@ class _PersonaldetailState extends State<Personaldetail> {
                       ),
                       Expanded(
                           child: Text(
-                        // nameu,
                         name + " $fname",
                         style: TextStyle(fontSize: 20),
                       ))
@@ -141,7 +127,6 @@ class _PersonaldetailState extends State<Personaldetail> {
                       ),
                       Expanded(
                           child: Text(
-                        // usernamme,
                         Usererdatalist.EMAIL,
                         style: TextStyle(fontSize: 20),
                       ))
@@ -155,8 +140,6 @@ class _PersonaldetailState extends State<Personaldetail> {
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade100,
                   ),
-
-                  // onPressed: () {},
                   child: Row(
                     children: [
                       Container(
@@ -183,8 +166,6 @@ class _PersonaldetailState extends State<Personaldetail> {
                     borderRadius: BorderRadius.circular(15),
                     color: Colors.grey.shade100,
                   ),
-
-                  // onPressed: () {},
                   child: Row(
                     children: [
                       Container(
@@ -219,8 +200,6 @@ class _PersonaldetailState extends State<Personaldetail> {
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.grey.shade100,
                     ),
-
-                    // onPressed: () {},
                     child: Row(
                       children: [
                         Container(
@@ -241,9 +220,7 @@ class _PersonaldetailState extends State<Personaldetail> {
                     )),
               )),
         ],
-      )
-          // : Center(child: CircularProgressIndicator()),
-          ),
+      )),
     );
   }
 }

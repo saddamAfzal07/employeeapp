@@ -1,11 +1,8 @@
 import 'package:employeeapp/controller/login/logincontrolller.dart';
-import 'package:employeeapp/model/Loginmodel/userdatamodel.dart';
 import 'package:employeeapp/resetpass_screen/enter_email.dart';
 import 'package:employeeapp/view/constant/constant.dart';
-import 'package:employeeapp/view/profile/profile.dart';
 import 'package:employeeapp/view/splash_screen/splash_screen.dart';
 import 'package:employeeapp/view/widget/my_button.dart';
-import 'package:employeeapp/view/widget/my_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:form_field_validator/form_field_validator.dart';
@@ -24,10 +21,8 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    // Login();
-    // check();
+
     checkiflogin();
-    // Login();
   }
 
   void check() async {
@@ -57,18 +52,10 @@ class _LoginState extends State<Login> {
   Login() {
     final isvalid = _formkey.currentState!.validate();
     if (isvalid) {
-      controller.Loginwithdetails(emailcontroller.text, passcontroller.text);
+      controller.loginwithdetails(emailcontroller.text, passcontroller.text);
       logindata!.setBool("login", false);
       logindata!.setString("username", emailcontroller.text);
       logindata!.setString("password", passcontroller.text);
-      // logindata!.setString("password", passcontroller.text);
-      // logindata!.setString("name", Usererdatalist.NAME);
-      // logindata!.setString("fullname", Usererdatalist.F_NAME);
-      // logindata!.setString("id", Usererdatalist.Id_no);
-
-      // logindata!.setString("image1", Usererdatalist.image);
-
-      // Get.offAll(() => Profile());
     } else {}
   }
 
@@ -87,7 +74,6 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Form(
@@ -120,12 +106,6 @@ class _LoginState extends State<Login> {
                       },
                       child: TextFormField(
                         controller: emailcontroller,
-                        // validator: (value) {
-                        //   if (value == null || value.isEmpty) {
-                        //     return "Email is required";
-                        //   }
-                        //   return null;
-                        // },
                         validator: MultiValidator(
                           [
                             RequiredValidator(errorText: "Email is required"),
@@ -193,16 +173,6 @@ class _LoginState extends State<Login> {
                       child: TextFormField(
                         controller: passcontroller,
                         obscureText: true,
-                        // validator: (value) {
-                        //   if (value == null || value.isEmpty) {
-                        //     return "Password is required";
-                        //   }
-                        //   return null;
-                        // },
-                        // validator: MultiValidator([
-                        //   MinLengthValidator(6,
-                        //       errorText: "Password must be 6 characters")
-                        // ]),
                         validator: passvalidation,
                         onTap: () {},
                         cursorColor: kGreyColor,
@@ -250,15 +220,7 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ),
-                  // MyTextField(
-                  //   labelText: 'Email',
-                  //   hintText: 'example@companyname.com',
-                  // ),
-                  // MyTextField2(
-                  //   labelText: 'Password',
-                  //   hintText: '*****',
-                  //   isObSecure: true,
-                  // ),
+
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -310,22 +272,13 @@ class _LoginState extends State<Login> {
   void checkiflogin() async {
     logindata = await SharedPreferences.getInstance();
     newuser = (logindata!.getBool("login") ?? true);
-    print(newuser);
     if (newuser == false) {
       logindataa = await SharedPreferences.getInstance();
       setState(() {
         usernamme = logindataa.getString("username").toString();
         pass = logindataa.getString("password")!;
-
-        // nameu = logindata.getString("name")!;
-        // fullname = logindata.getString("fullname")!;
-        // id = logindata.getString("id")!;
-        // userimage = logindata.getString("image1")!;
       });
-      controller.Loginwithdetails(usernamme, pass);
-
-      // Get.offAll(() => Profile());
-      // print(newuser);
+      controller.loginwithdetails(usernamme, pass);
     }
   }
 }

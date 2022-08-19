@@ -10,6 +10,7 @@ import 'package:employeeapp/model/tasks_model/pendingapproval.dart';
 import 'package:employeeapp/model/tasks_model/taskmodel.dart';
 import 'package:employeeapp/model/tasks_model/uncompleted_model.dart';
 import 'package:employeeapp/view/constant/constant.dart';
+import 'package:employeeapp/view/notifications/notifications.dart';
 import 'package:employeeapp/view/widget/my_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -55,12 +56,6 @@ class _TasksState extends State<Tasks> {
     }
   }
 
-  // var completedcount = 0;
-  // var uncompletedcount = 0;
-  // var pendingcount = 0;
-
-  // var taskcount;
-
   DateTime now =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
@@ -70,13 +65,10 @@ class _TasksState extends State<Tasks> {
   List<DailyTasks> category = [];
   bool notext = false;
   fetchapi() async {
+    print(token);
     category = [];
     print(selecteddate);
-    // setState(() {
-    //   var date = selecteddate.toString().substring(
-    //                               0, selecteddate.length, 10)),
 
-    // });
     var response = await http.get(
       Uri.parse("${Api.baseurl}task/assigned?date=$selecteddate"),
       headers: {
@@ -86,7 +78,6 @@ class _TasksState extends State<Tasks> {
     );
 
     Map data = jsonDecode(response.body);
-    print(response.body);
 
     if (response.statusCode == 200) {
       if (data["daily_tasks"].isEmpty) {
@@ -103,25 +94,6 @@ class _TasksState extends State<Tasks> {
           category.add(pos);
         }
       }
-      // if (data["count"] == 0) {
-      //   setState(() {
-      //     isloadingwaiting = false;
-      //   });
-      // }
-      // setState(() {
-      //   taskcount = data["count"];
-      //   completedcount = data["completedCount"];
-      //   uncompletedcount = data["unCompletedCount"];
-      //   pendingcount = data["pedningApprovalCount"];
-      //   isloadingwaiting = false;
-      // });
-
-      setState(() {
-        isloadingwaiting = false;
-      });
-
-      // shift();
-
     } else {
       if (mounted) {
         setState(() {
@@ -131,12 +103,9 @@ class _TasksState extends State<Tasks> {
     }
   }
 
-  taskcall() async {
-    // controller.Tasks(now, id);
-  }
+  taskcall() async {}
 
   void checkForNewSharedLists() {
-    // do request here
     setState(() {
       taskcall();
       category = [];
@@ -152,17 +121,11 @@ class _TasksState extends State<Tasks> {
   void initState() {
     super.initState();
     controller.employeTaskCount();
-    // apirecall();
 
     fetchapi();
     timer = Timer.periodic(Duration(seconds: 2), (Timer t) {
-      // checkForNewSharedLists();
       controller.employeTaskCount();
     });
-
-    // WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-    //   _refreshIndicaorkey.currentState!.toString();
-    // });
   }
 
   @override
@@ -172,7 +135,6 @@ class _TasksState extends State<Tasks> {
   }
 
   var initial = 0;
-  // File? image;
   var pick;
 
   final _picker = ImagePicker();
@@ -180,9 +142,7 @@ class _TasksState extends State<Tasks> {
     final pickedfile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedfile != null) {
       setState(() {
-        // for (int i = 0; i < category.length; i++) {
         category[i].image = File(pickedfile.path);
-        // }
       });
     } else {
       print("Not any image is selected");
@@ -193,9 +153,6 @@ class _TasksState extends State<Tasks> {
     Future.delayed(Duration(milliseconds: 100), () {
       category = [];
       fetchapi();
-
-      // controller.employeTaskCount();
-      print("recall");
     });
   }
 
@@ -205,12 +162,7 @@ class _TasksState extends State<Tasks> {
     setState(() {
       isLoadSubmit = true;
     });
-    print("call image submit");
-    print(category[index].image);
-    print(category[index].id);
-    // print('token' + Usererdatalist.usertoken.toString());
 
-    // ignore: unused_local_variable
     var token = Usererdatalist.usertoken;
     Map<String, String> headers = {
       'Accept': 'application/json',
@@ -231,9 +183,6 @@ class _TasksState extends State<Tasks> {
     http.StreamedResponse response = await multipartRequest.send();
 
     var responseString = await response.stream.bytesToString();
-    //  var responseString = String.fromCharCodes(responseString.toString());
-
-    // print(response.toString());
 
     if (response.statusCode == 200) {
       setState(() {
@@ -241,8 +190,7 @@ class _TasksState extends State<Tasks> {
         isLoadSubmit = false;
       });
       print("Done");
-      // Scaffold.of(context)
-      //     .showSnackBar(SnackBar(content: Text("Task upload Successfully")));
+
       Get.snackbar(
         "Task submit Successfully",
         "",
@@ -254,7 +202,6 @@ class _TasksState extends State<Tasks> {
       );
 
       apirecall();
-      // fetchapi();
 
       print(responseString);
     } else {}
@@ -296,8 +243,6 @@ class _TasksState extends State<Tasks> {
           RejectedTasks pos = RejectedTasks();
           pos = RejectedTasks.fromJson(obj);
           uncmplete.add(pos);
-          print("uncomplete");
-          print(uncmplete);
         }
       }
       setState(() {
@@ -327,12 +272,10 @@ class _TasksState extends State<Tasks> {
         isloadingcomplete = false;
       });
       if (data["error"] == "No Compeleted Task Found") {
-        print("No Compeleted Task Found");
         setState(() {
           notext = true;
         });
       } else {
-        print("Compeleted Task Found");
         setState(() {
           notext = false;
         });
@@ -342,8 +285,6 @@ class _TasksState extends State<Tasks> {
           CompletedTask pos = CompletedTask();
           pos = CompletedTask.fromJson(obj);
           complete.add(pos);
-
-          print(complete);
         }
       }
       setState(() {
@@ -387,8 +328,6 @@ class _TasksState extends State<Tasks> {
           Pending pos = Pending();
           pos = Pending.fromJson(obj);
           pending.add(pos);
-          print("uncomplete");
-          print(complete);
         }
       }
       setState(() {
@@ -408,7 +347,6 @@ class _TasksState extends State<Tasks> {
       'assigned_task_specific_id': category[index].id.toString(),
       'image': Usererdatalist.userid,
     };
-    print(bodyy);
 
     http.Response response = await http.post(
       Uri.parse("${Api.baseurl}task/assigned-submit"),
@@ -419,11 +357,8 @@ class _TasksState extends State<Tasks> {
       },
     );
 
-    // var data = jsonDecode(response.body);
     print(response.body);
     if (response.statusCode == 200) {
-      print("upload");
-
       Get.snackbar(
         "Task submit Successfully",
         "",
@@ -473,11 +408,14 @@ class _TasksState extends State<Tasks> {
           const SizedBox(
             width: 12.0,
           ),
-          Center(
-            child: Image.asset(
-              'assets/images/Vector (4).png',
-              height: 20,
-              color: kSecondaryColor,
+          InkWell(
+            onTap: () => Get.to(() => Notifications()),
+            child: Center(
+              child: Image.asset(
+                'assets/images/Vector (4).png',
+                height: 20,
+                color: kSecondaryColor,
+              ),
             ),
           ),
           const SizedBox(
@@ -533,7 +471,6 @@ class _TasksState extends State<Tasks> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             InkWell(
-                              // splashColor: Colors.black45,
                               onTap: () {
                                 isloadingcomplete = true;
                                 complete = [];
@@ -546,7 +483,6 @@ class _TasksState extends State<Tasks> {
                                 });
                               },
                               child: Container(
-                                // color: Colors.orange,
                                 child: Column(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -588,7 +524,6 @@ class _TasksState extends State<Tasks> {
                                 });
                               },
                               child: Container(
-                                // color: Colors.yellow,
                                 child: Column(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -629,7 +564,6 @@ class _TasksState extends State<Tasks> {
                                 });
                               },
                               child: Container(
-                                // color: Colors.green,
                                 child: Column(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -669,7 +603,6 @@ class _TasksState extends State<Tasks> {
                                 });
                               },
                               child: Container(
-                                // color: Colors.purple,
                                 child: Column(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
@@ -706,8 +639,6 @@ class _TasksState extends State<Tasks> {
               ),
             ],
           ),
-          //   ),
-          // ),
 
           SizedBox(
             height: 10,
@@ -791,7 +722,6 @@ class _TasksState extends State<Tasks> {
                                                     category[index].load =
                                                         circular;
                                                   });
-                                                  print("click submit");
                                                   withOutPic(index);
                                                 },
                                                 child: Icon(
@@ -801,13 +731,10 @@ class _TasksState extends State<Tasks> {
                                       )
                                     : ListTile(
                                         minLeadingWidth: 10,
-                                        // minVerticalPadding: 20,
                                         leading: Container(
                                           alignment: Alignment.centerLeft,
-                                          // margin: EdgeInsets.only(bottom: 10),
                                           height: 40,
                                           width: 40,
-                                          // color: Colors.green,
                                           child: category[index].image == null
                                               ? Image.asset(
                                                   "assets/images/pic.png",
@@ -852,7 +779,6 @@ class _TasksState extends State<Tasks> {
                                                   ))
                                                 : GestureDetector(
                                                     onTap: () {
-                                                      print("click submit");
                                                       uploadImage(index);
                                                     },
                                                     child: Icon(
