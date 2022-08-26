@@ -442,7 +442,7 @@ class _ProfileState extends State<Profile> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                loginCotroller.yearpoints.value.toString(),
+                                Usererdatalist.yearlypoints.toString(),
                                 style: TextStyle(
                                   fontSize: 36,
                                   color: kTertiaryColor,

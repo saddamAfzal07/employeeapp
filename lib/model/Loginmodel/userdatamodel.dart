@@ -11,6 +11,7 @@ class Usererdatalist {
   static String Id_no = "";
   static String EMAIL = "";
   static String CELL_NO = "";
+  static String yearlypoints = "";
 }
 
 class Api {

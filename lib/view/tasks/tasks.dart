@@ -80,13 +80,16 @@ class _TasksState extends State<Tasks> {
     Map data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
+      isloadingwaiting = false;
       if (data["daily_tasks"].isEmpty) {
+        print("Not any task available");
         if (mounted) {
           setState(() {
             notext = true;
           });
         }
       } else {
+        print("task available");
         for (int i = 0; i < data["daily_tasks"].length; i++) {
           Map obj = data["daily_tasks"][i];
           DailyTasks pos = DailyTasks();
@@ -312,7 +315,7 @@ class _TasksState extends State<Tasks> {
 
     if (response.statusCode == 200) {
       setState(() {
-        isloadingcomplete = false;
+        load = false;
       });
 
       if (data["error"] == "No Pending For Approval Task  Found") {
@@ -331,7 +334,7 @@ class _TasksState extends State<Tasks> {
         }
       }
       setState(() {
-        isloadingcomplete = false;
+        load = false;
       });
     } else {
       setState(() {
@@ -890,7 +893,7 @@ class _TasksState extends State<Tasks> {
           ////pending
           Visibility(
             visible: visiblepending,
-            child: isloadingcomplete
+            child: load
                 ? Center(
                     child: CircularProgressIndicator(),
                   )

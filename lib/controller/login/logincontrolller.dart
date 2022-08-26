@@ -26,6 +26,7 @@ class LoginController extends GetxController {
 
     var response = await http.post(Uri.parse("${Api.baseurl}employeelogin"),
         body: {'email': email, 'password': password});
+    print(response.body);
     if (response.statusCode == 200) {
       isdatasubmit.value = false;
       Map<String, dynamic> responsedata = jsonDecode(response.body);
@@ -39,7 +40,8 @@ class LoginController extends GetxController {
       Usererdatalist.CELL_NO = responsedata["emp_info"]["mobile_no"];
       Usererdatalist.usertoken = responsedata["token"];
       Usererdatalist.userid = responsedata["emp_info"]["id"].toString();
-
+      Usererdatalist.yearlypoints =
+          responsedata["yearly_point_count"].toString();
       Get.off(() => Profile());
 
       isdatareading.value = true;
